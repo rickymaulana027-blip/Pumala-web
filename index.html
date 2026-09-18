@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PUMALA App</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222}
+header{background:#111;color:#fff;padding:16px;position:sticky;top:0;z-index:3}header h1{margin:0;font-size:24px}
+nav{display:flex;gap:6px;overflow:auto;padding:10px;background:#fff;position:sticky;top:57px;z-index:2;border-bottom:1px solid #ddd}
+nav button,.btn{border:0;border-radius:9px;padding:10px 13px;background:#222;color:#fff;cursor:pointer}
+nav button.active{background:#e67e22}main{max-width:1100px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0000000d}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin:5px 0 10px}
+label{font-size:13px;font-weight:bold}.menu{border:1px solid #ddd;padding:12px;border-radius:10px}.menu h3{margin:0 0 5px}
+.qty{width:80px}.danger{background:#c0392b}.green{background:#168a45}.orange{background:#e67e22}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left;font-size:14px}
+.total{font-size:22px;font-weight:bold;text-align:right;margin:12px 0}.muted{color:#777;font-size:13px}.stat{font-size:25px;font-weight:bold}
+</style>
+</head>
+<body>
+<header><h1>🍜 PUMALA App</h1><div class="muted" style="color:#bbb">Mie Get / Mie Nyemek</div></header>
+<nav id="nav"></nav>
+<main>
+<section id="dashboard" class="page active"></section>
+<section id="kasir" class="page"></section>
+<section id="stok" class="page"></section>
+<section id="pemasukan" class="page"></section>
+<section id="pengeluaran" class="page"></section>
+<section id="laporan" class="page"></section>
+<section id="delivery" class="page"></section>
+<section id="backup" class="page"></section>
+</main>
+<script>
+const KEY='pumala_main_v1';
+const defaultMaterials=[
+ ['Mie','porsi',0,0,5],['Telor','pcs',0,0,5],['Sosis','pcs',0,0,5],['Bakso','pcs',0,0,5],
+ ['Sterofoam','pcs',0,0,10],['Sedotan','pcs',0,0,10],['Sendok','pcs',0,0,10],
+ ['Kecap','botol',0,0,1],['Saos','botol',0,0,1],['Sayuran','kg',0,0,1],
+ ['Cabai','kg',0,0,0.5],['Minyak','liter',0,0,1],['Gas','tabung',0,0,1],['Air','liter',0,0,5]
+];
+let state=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ transactions:[], expenses:[], materials:defaultMaterials.map(x=>({name:x[0],unit:x[1],stock:x[2],price:x[3],min:x[4]})),
+ stockMoves:[]
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
+const menus=[
+ {id:'ori',name:'Mie Get / Nyemek Ori',price:10000},
+ {id:'bs',name:'Mie Get / Nyemek + Baso / Sosis',price:12000},
+ {id:'both',name:'Mie Get / Nyemek + Baso + Sosis',price:13000}
+];
+let cart=[];
+function nav(){
+ let items=[['dashboard','Dashboard'],['kasir','Kasir'],['stok','Stok/Bahan'],['pemasukan','Pemasukan'],['pengeluaran','Pengeluaran'],['laporan','Laporan'],['delivery','Delivery'],['backup','Backup']];
+ document.getElementById('nav').innerHTML=items.map(x=>`<button onclick="show('${x[0]}')">${x[1]}</button>`).join('');
+}
+function show(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.textContent==={'dashboard':'Dashboard','kasir':'Kasir','stok':'Stok/Bahan','pemasukan':'Pemasukan','pengeluaran':'Pengeluaran','laporan':'Laporan','delivery':'Delivery','backup':'Backup'}[id]));
+ render();
+}
+function render(){dashboard();kasir();stok();pemasukan();pengeluaran();laporan();delivery();backup()}
+function dashboard(){
+ let income=state.transactions.reduce((s,t)=>s+t.total,0), exp=state.expenses.reduce((s,e)=>s+e.amount,0);
+ document.getElementById('dashboard').innerHTML=`<div class="card"><h2>Dashboard</h2><div class="grid">
+ <div class="card"><div class="muted">Total Pemasukan</div><div class="stat">${rupiah(income)}</div></div>
+ <div class="card"><div class="muted">Total Pengeluaran</div><div class="stat">${rupiah(exp)}</div></div>
+ <div class="card"><div class="muted">Saldo Sementara</div><div class="stat">${rupiah(income-exp)}</div></div>
+ <div class="card"><div class="muted">Transaksi</div><div class="stat">${state.transactions.length}</div></div></div></div>`;
+}
+function kasir(){
+ document.getElementById('kasir').innerHTML=`<div class="card"><h2>Kasir</h2><div class="grid">${menus.map(m=>`<div class="menu"><h3>${m.name}</h3><b>${rupiah(m.price)}</b><label>Qty</label><input class="qty" id="q_${m.id}" type="number" min="0" value="0"><button class="btn orange" onclick="addMenu('${m.id}')">Tambah</button></div>`).join('')}</div>
+ <hr><h3>Pesanan Tambahan / Manual</h3><div class="grid"><div><label>Nama item</label><input id="customName" placeholder="Contoh: Es Teh"></div><div><label>Harga</label><input id="customPrice" type="number" placeholder="3000"></div><div><label>Qty</label><input id="customQty" type="number" min="1" value="1"></div></div><button class="btn" onclick="addCustom()">Tambah Manual</button></div>
+ <div class="card"><h3>Pesanan Saat Ini</h3>${cart.length?cart.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid #ddd">${x.name} × ${x.qty} — <b>${rupiah(x.price*x.qty)}</b> <button class="btn danger" onclick="removeCart(${i})">Hapus</button></div>`).join(''):'<div class="muted">Belum ada pesanan.</div>'}
+ <div class="total">Total: ${rupiah(cart.reduce((s,x)=>s+x.price*x.qty,0))}</div><button class="btn green" onclick="saveTransaction()">Simpan Transaksi</button> <button class="btn danger" onclick="cart=[];render()">Kosongkan</button></div>`;
+}
+function addMenu(id){let m=menus.find(x=>x.id==id),q=+document.getElementById('q_'+id).value||0;if(q<1)return;let old=cart.find(x=>x.id==id);old?old.qty+=q:cart.push({...m,qty:q});render()}
+function addCustom(){let n=document.getElementById('customName').value.trim(),p=+document.getElementById('customPrice').value,q=+document.getElementById('customQty').value||1;if(!n||p<0||q<1)return alert('Lengkapi nama, harga, dan Qty.');cart.push({id:'custom-'+Date.now(),name:n+' (tambahan)',price:p,qty:q});render()}
+function removeCart(i){cart.splice(i,1);render()}
+function saveTransaction(){if(!cart.length)return alert('Pesanan masih kosong.');let total=cart.reduce((s,x)=>s+x.price*x.qty,0);state.transactions.push({id:Date.now(),date:new Date().toISOString(),items:cart.map(x=>({...x})),total});save();cart=[];alert('Transaksi tersimpan.');render()}
+function stok(){
+ document.getElementById('stok').innerHTML=`<div class="card"><h2>Stok / Bahan</h2><p class="muted">Bahan bawaan dapat diubah dan bahan baru bisa ditambahkan manual.</p>
+ <div class="grid"><div><label>Nama bahan</label><input id="mn"></div><div><label>Satuan</label><input id="mu" placeholder="pcs / kg / liter"></div><div><label>Stok awal</label><input id="ms" type="number" value="0"></div><div><label>Harga beli</label><input id="mp" type="number" value="0"></div><div><label>Stok minimum</label><input id="mm" type="number" value="0"></div></div><button class="btn green" onclick="addMaterial()">＋ Tambah Bahan</button></div>
+ <div class="card"><h3>Daftar Bahan</h3><table><tr><th>Bahan</th><th>Satuan</th><th>Stok</th><th>Harga</th><th>Minimum</th><th>Aksi</th></tr>${state.materials.map((m,i)=>`<tr><td>${m.name}</td><td>${m.unit}</td><td>${m.stock}</td><td>${rupiah(m.price)}</td><td>${m.min}</td><td><button class="btn" onclick="stockIn(${i})">Barang Masuk</button> <button class="btn orange" onclick="useStock(${i})">Terpakai</button> <button class="btn danger" onclick="delMaterial(${i})">Hapus</button></td></tr>`).join('')}</table></div>`;
+}
+function addMaterial(){let n=mn.value.trim(),u=mu.value.trim()||'pcs',s=+ms.value||0,p=+mp.value||0,m=+mm.value||0;if(!n)return alert('Nama bahan wajib diisi.');state.materials.push({name:n,unit:u,stock:s,price:p,min:m});save();render()}
+function stockIn(i){let q=+prompt('Jumlah barang masuk:',1);if(!(q>0))return;state.materials[i].stock+=q;state.stockMoves.push({date:new Date().toISOString(),type:'masuk',name:state.materials[i].name,qty:q});save();render()}
+function useStock(i){let q=+prompt('Jumlah bahan terpakai:',1);if(!(q>0))return;if(q>state.materials[i].stock)return alert('Stok tidak cukup.');state.materials[i].stock-=q;state.stockMoves.push({date:new Date().toISOString(),type:'terpakai',name:state.materials[i].name,qty:q});save();render()}
+function delMaterial(i){if(confirm('Hapus bahan ini?')){state.materials.splice(i,1);save();render()}}
+function pemasukan(){document.getElementById('pemasukan').innerHTML=`<div class="card"><h2>Pemasukan</h2>${state.transactions.length?`<table><tr><th>Tanggal</th><th>Detail</th><th>Total</th><th>Aksi</th></tr>${state.transactions.slice().reverse().map(t=>`<tr><td>${new Date(t.date).toLocaleString('id-ID')}</td><td>${t.items.map(x=>x.name+' × '+x.qty).join(', ')}</td><td>${rupiah(t.total)}</td><td><button class="btn danger" onclick="delTx(${t.id})">Hapus</button></td></tr>`).join('')}</table>`:'<p class="muted">Belum ada transaksi.</p>'}</div>`}
+function delTx(id){if(confirm('Hapus transaksi?')){state.transactions=state.transactions.filter(t=>t.id!=id);save();render()}}
+function pengeluaran(){document.getElementById('pengeluaran').innerHTML=`<div class="card"><h2>Pengeluaran</h2><div class="grid"><div><label>Keterangan</label><input id="en" placeholder="Contoh: beli mie"></div><div><label>Nominal</label><input id="ea" type="number" placeholder="50000"></div></div><button class="btn green" onclick="addExpense()">＋ Simpan Pengeluaran</button></div><div class="card"><table><tr><th>Tanggal</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr>${state.expenses.slice().reverse().map(e=>`<tr><td>${new Date(e.date).toLocaleString('id-ID')}</td><td>${e.name}</td><td>${rupiah(e.amount)}</td><td><button class="btn danger" onclick="delExp(${e.id})">Hapus</button></td></tr>`).join('')}</table></div>`}
+function addExpense(){let n=en.value.trim(),a=+ea.value;if(!n||!(a>0))return alert('Lengkapi pengeluaran.');state.expenses.push({id:Date.now(),date:new Date().toISOString(),name:n,amount:a});save();render()}
+function delExp(id){state.expenses=state.expenses.filter(x=>x.id!=id);save();render()}
+function laporan(){let income=state.transactions.reduce((s,t)=>s+t.total,0),exp=state.expenses.reduce((s,e)=>s+e.amount,0);document.getElementById('laporan').innerHTML=`<div class="card"><h2>Laporan</h2><div class="grid"><div><b>Pemasukan</b><div class="stat">${rupiah(income)}</div></div><div><b>Pengeluaran</b><div class="stat">${rupiah(exp)}</div></div><div><b>Saldo</b><div class="stat">${rupiah(income-exp)}</div></div></div><hr><button class="btn" onclick="exportCSV()">Export CSV</button></div>`}
+function delivery(){document.getElementById('delivery').innerHTML=`<div class="card"><h2>Kalkulator Delivery</h2><label>Jarak (km)</label><input id="dk" type="number" step=".1" value="1"><label>Nilai pesanan</label><input id="do" type="number" value="30000"><button class="btn orange" onclick="calcDelivery()">Hitung</button><div id="dr" style="margin-top:15px"></div><p class="muted">Tarif: 0–1 km Rp3.000; 1–2 km Rp4.000; 2–3 km Rp5.000; 3–4 km Rp7.000; 4–5 km Rp9.000. Di atas 5 km: negosiasi/tidak tersedia. Minimum order Rp30.000.</p></div>`}
+function calcDelivery(){let k=+document.getElementById('dk').value,o=+document.getElementById('do').value;if(o<30000)return document.getElementById('dr').innerHTML='<b>Minimum order Rp30.000.</b>';let fee=k<=1?3000:k<=2?4000:k<=3?5000:k<=4?7000:k<=5?9000:null;document.getElementById('dr').innerHTML=fee===null?'<b>Jarak di atas 5 km: perlu negosiasi.</b>':`<b>Ongkir: ${rupiah(fee)}</b><br>Total + ongkir: ${rupiah(o+fee)}`;}
+function exportCSV(){let rows=[['Tanggal','Item','Qty','Harga','Subtotal']];state.transactions.forEach(t=>t.items.forEach(x=>rows.push([new Date(t.date).toLocaleString('id-ID'),x.name,x.qty,x.price,x.qty*x.price])));let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='PUMALA_Laporan.csv';a.click()}
+function backup(){document.getElementById('backup').innerHTML=`<div class="card"><h2>Backup & Import</h2><p>Gunakan backup agar data PUMALA aman saat pindah perangkat atau aplikasi.</p><button class="btn green" onclick="downloadBackup()">Download Backup JSON</button><br><br><label>Import Backup JSON</label><input type="file" id="imp" accept=".json" onchange="importBackup(event)"><p class="muted">Catatan: import akan mengganti data aplikasi saat ini dengan data dari file backup.</p></div>`}
+function downloadBackup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='PUMALA_Backup.json';a.click()}
+function importBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.transactions||!x.expenses||!x.materials)throw 0;if(confirm('Ganti data saat ini dengan backup?')){state=x;save();render();alert('Backup berhasil diimpor.')}}catch(_){alert('File backup tidak valid.')}};r.readAsText(f)}
+window.addEventListener('error', function(e){
+  const box=document.createElement('div');
+  box.style='padding:16px;margin:16px;background:#fff3cd;color:#664d03;border:1px solid #ffecb5;border-radius:10px;font-family:Arial';
+  box.innerHTML='<b>Aplikasi mengalami error.</b><br>Silakan buka ulang aplikasi. Detail: '+String(e.message||'tidak diketahui');
+  document.body.appendChild(box);
+});
+nav();render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+
+</body>
+</html>
