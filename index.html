@@ -32,6 +32,7 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:9px;bord
 <section id="delivery" class="page"></section>
 <section id="backup" class="page"></section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const KEY='pumala_main_v1';
 const defaultMaterials=[
@@ -40,11 +41,107 @@ const defaultMaterials=[
  ['Kecap','botol',0,0,1],['Saos','botol',0,0,1],['Sayuran','kg',0,0,1],
  ['Cabai','kg',0,0,0.5],['Minyak','liter',0,0,1],['Gas','tabung',0,0,1],['Air','liter',0,0,5]
 ];
-let state=JSON.parse(localStorage.getItem(KEY)||'null')||{
- transactions:[], expenses:[], materials:defaultMaterials.map(x=>({name:x[0],unit:x[1],stock:x[2],price:x[3],min:x[4]})),
- stockMoves:[]
+const SUPABASE_URL='https://mgtnninfuktrkasybser.supabase.co';
+const SUPABASE_KEY='sb_publishable_-Ucxdn9WA_iiBklEMhICeg_ykXFifZ1';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let localState=JSON.parse(localStorage.getItem(KEY)||'null');
+
+let state=localState||{
+  transactions:[],
+  expenses:[],
+  materials:defaultMaterials.map(x=>({
+    name:x[0],
+    unit:x[1],
+    stock:x[2],
+    price:x[3],
+    min:x[4]
+  })),
+  stockMoves:[]
 };
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+let cloudReady=false;
+
+function saveLocal(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+}
+
+async function save(){
+  saveLocal();
+
+  if(!cloudReady)return;
+
+  const {error}=await supabaseClient
+    .from('pumala_state')
+    .upsert({
+      id:1,
+      data:state,
+      updated_at:new Date().toISOString()
+    });
+
+  if(error){
+    console.error('Supabase save error:',error);
+  }
+}
+
+async function loadCloud(){
+
+  const {data,error}=await supabaseClient
+    .from('pumala_state')
+    .select('id,data,updated_at')
+    .eq('id',1)
+    .maybeSingle();
+
+  if(error){
+    console.error('Supabase load error:',error);
+    cloudReady=true;
+    return;
+  }
+
+  if(data && data.data){
+
+    state=data.data;
+    saveLocal();
+
+  }else{
+
+    cloudReady=true;
+    await save();
+    return;
+  }
+
+  cloudReady=true;
+  render();
+}
+
+function startRealtime(){
+
+  supabaseClient
+    .channel('pumala-sync')
+    .on(
+      'postgres_changes',
+      {
+        event:'UPDATE',
+        schema:'public',
+        table:'pumala_state',
+        filter:'id=eq.1'
+      },
+      payload=>{
+
+        if(!payload.new || !payload.new.data)return;
+
+        state=payload.new.data;
+        saveLocal();
+        render();
+
+      }
+    )
+    .subscribe();
+}
 const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
 const menus=[
  {id:'ori',name:'Mie Get / Nyemek Ori',price:10000},
@@ -108,7 +205,10 @@ window.addEventListener('error', function(e){
   box.innerHTML='<b>Aplikasi mengalami error.</b><br>Silakan buka ulang aplikasi. Detail: '+String(e.message||'tidak diketahui');
   document.body.appendChild(box);
 });
-nav();render();
+nav();
+render();
+loadCloud();
+startRealtime();
 </script>
 
 <script>
