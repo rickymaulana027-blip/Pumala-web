@@ -360,29 +360,213 @@ function delTx(id){if(confirm('Hapus transaksi?')){state.transactions=state.tran
 
 /* PENGELUARAN */
 function pengeluaran(){
- const options=state.materials.map((m,i)=>`<option value="${i}">${m.name}</option>`).join('');
+ const options=state.materials.map((m,i)=>`<option value="${i}">${m.name}</option>`).join('')+`<option value="__other__">Bahan Lain-lain</option>`;
  const total=state.expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
  document.getElementById('pengeluaran').innerHTML=`
- <div class="section-title"><div><h2>Pengeluaran</h2><div class="muted">Catat pembelian bahan dan biaya usaha</div></div><button class="btn orange" onclick="document.getElementById('expenseMaterial').focus()">＋ Tambah Pengeluaran</button></div>
- <div class="dashboard-grid"><div class="report-card red"><h3>Total Pengeluaran</h3><div class="big">${rupiah(total)}</div><div class="mini">${state.expenses.length} catatan</div></div></div>
+ <div class="section-title"><div><h2>Pengeluaran</h2><div class="muted">Catat pembelian bahan dan lihat analisis sederhana</div></div><button class="btn orange" onclick="document.getElementById('expenseMaterial').focus()">＋ Tambah Pengeluaran</button></div>
+ <div class="dashboard-grid"><div class="report-card red"><h3>Total Pengeluaran</h3><div class="big">${rupiah(total)}</div><div class="mini">semua pengeluaran tersimpan</div></div></div>
+
  <div class="card"><div class="section-title"><h3>Tambah Pengeluaran</h3><span class="muted">Pilih dari Stok/Bahan</span></div>
-  <div class="form-grid"><div><label>Bahan</label><select id="expenseMaterial">${options||'<option value="">Belum ada bahan</option>'}</select></div><div><label>Jumlah bahan</label><input id="expenseQty" type="number" min=".01" step=".01" value="1"></div><div><label>Total harga pembelian</label><input id="expenseAmount" type="number" min="0" placeholder="Contoh: 50000"></div></div>
+  <div class="form-grid">
+   <div>
+    <label>Bahan</label>
+    <select id="expenseMaterial" onchange="toggleOtherExpense()">
+     <option value="">Pilih bahan</option>
+     ${options}
+    </select>
+   </div>
+
+   <div id="otherExpenseWrap" style="display:none">
+    <label>Nama bahan lain-lain</label>
+    <input id="otherExpenseName" type="text" placeholder="Contoh: Gas, plastik, ongkir">
+   </div>
+
+   <div>
+    <label>Jumlah bahan</label>
+    <input id="expenseQty" type="number" min=".01" step=".01" value="1">
+   </div>
+
+   <div>
+    <label>Total harga pembelian</label>
+    <input id="expenseAmount" type="number" min="0" placeholder="Contoh: 50000">
+   </div>
+  </div>
+
   <button class="btn green" onclick="addExpense()">＋ Simpan Pengeluaran</button>
  </div>
- <div class="card"><div class="section-title"><h3>Daftar Pengeluaran</h3><span class="muted">Terbaru di atas</span></div>
- ${state.expenses.length?`<div class="table-wrap"><table><tr><th>Tanggal</th><th>Bahan</th><th>Jumlah</th><th>Nominal</th><th>Aksi</th></tr>${state.expenses.slice().reverse().map(e=>`<tr><td>${new Date(e.date).toLocaleString('id-ID')}</td><td>${e.materialName||e.name||'-'}</td><td>${e.qty??'-'} ${e.unit||''}</td><td><b>${rupiah(e.amount)}</b></td><td><button class="btn danger" onclick="delExp(${e.id})">Hapus</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada pengeluaran.</div>'}</div>`;
+
+ <div class="card">
+  <div class="section-title">
+   <div>
+    <h3>Analisis Pengeluaran</h3>
+    <span class="muted">Cukup pilih bahan untuk melihat total keseluruhan</span>
+   </div>
+  </div>
+
+  <div class="form-grid">
+   <div>
+    <label>Filter bahan</label>
+    <select id="expenseAnalysisMaterial" onchange="updateExpenseAnalysis()">
+     <option value="">Pilih bahan</option>
+     <option value="__other__">Bahan Lain-lain</option>
+     ${state.materials.map(m=>`<option value="${m.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${m.name}</option>`).join('')}
+    </select>
+   </div>
+
+   <div>
+    <label>Total pengeluaran keseluruhan</label>
+    <div id="expenseAnalysisTotal" class="input-like">Pilih bahan terlebih dahulu</div>
+   </div>
+  </div>
+ </div>
+
+ <div class="card">
+  <div class="section-title">
+   <div>
+    <h3>Lihat History Pengeluaran</h3>
+    <span class="muted">History hanya ditampilkan setelah memilih tanggal</span>
+   </div>
+  </div>
+
+  <div class="form-grid">
+   <div>
+    <label>Tanggal mulai</label>
+    <input id="expenseFrom" type="date" value="${todayKey()}">
+   </div>
+
+   <div>
+    <label>Tanggal akhir</label>
+    <input id="expenseTo" type="date" value="${todayKey()}">
+   </div>
+  </div>
+
+  <button class="btn" onclick="filterExpenseHistory()">🔎 Tampilkan History</button>
+  <div id="expenseHistory" style="margin-top:14px"></div>
+ </div>`;
 }
+
+function toggleOtherExpense(){
+ const v=document.getElementById('expenseMaterial')?.value;
+ const w=document.getElementById('otherExpenseWrap');
+ if(w)w.style.display=v==='__other__'?'block':'none';
+}
+
+function updateExpenseAnalysis(){
+ const name=document.getElementById('expenseAnalysisMaterial')?.value;
+ const box=document.getElementById('expenseAnalysisTotal');
+ if(!box)return;
+
+ if(!name){
+  box.textContent='Pilih bahan terlebih dahulu';
+  return;
+ }
+
+ const total=state.expenses
+  .filter(e=>(e.materialName||e.name||'')===name)
+  .reduce((s,e)=>s+(Number(e.amount)||0),0);
+
+ box.textContent=rupiah(total);
+}
+
+function filterExpenseHistory(){
+ const from=document.getElementById('expenseFrom')?.value;
+ const to=document.getElementById('expenseTo')?.value;
+ const box=document.getElementById('expenseHistory');
+
+ if(!from||!to)return alert('Pilih tanggal mulai dan tanggal akhir.');
+ if(from>to)return alert('Tanggal mulai tidak boleh setelah tanggal akhir.');
+
+ const rows=state.expenses
+  .filter(e=>{
+   const d=localDateKey(e.date);
+   return d>=from&&d<=to;
+  })
+  .slice()
+  .reverse();
+
+ box.innerHTML=rows.length?
+ `<div class="table-wrap">
+  <table>
+   <tr>
+    <th>Tanggal</th>
+    <th>Bahan</th>
+    <th>Jumlah</th>
+    <th>Nominal</th>
+    <th>Aksi</th>
+   </tr>
+   ${rows.map(e=>`
+    <tr>
+     <td>${new Date(e.date).toLocaleString('id-ID')}</td>
+     <td>${e.materialName||e.name||'-'}</td>
+     <td>${e.qty??'-'} ${e.unit||''}</td>
+     <td><b>${rupiah(e.amount)}</b></td>
+     <td><button class="btn danger" onclick="delExp(${e.id})">Hapus</button></td>
+    </tr>
+   `).join('')}
+  </table>
+ </div>`
+ :' <div class="empty">Tidak ada pengeluaran pada periode tersebut.</div>';
+}
+
 function addExpense(){
- const idx=Number(document.getElementById('expenseMaterial').value),qty=Number(document.getElementById('expenseQty').value),amount=Number(document.getElementById('expenseAmount').value);
- if(!state.materials[idx])return alert('Pilih bahan terlebih dahulu.');if(!(qty>0))return alert('Jumlah bahan harus diisi.');if(!(amount>0))return alert('Total harga pembelian harus diisi.');
- const material=state.materials[idx];material.stock=(Number(material.stock)||0)+qty;material.price=amount/qty;const id=Date.now();
- state.expenses.push({id,date:new Date().toISOString(),name:material.name,materialName:material.name,qty,unit:material.unit||'pcs',amount});
- state.stockMoves.push({date:new Date().toISOString(),type:'masuk',name:material.name,qty,expenseId:id});save();render();alert('Pengeluaran tersimpan.')
-}
-function delExp(id){
- const e=state.expenses.find(x=>x.id==id);if(!e)return;if(!confirm('Hapus pengeluaran ini? Stok akan dikurangi kembali sesuai jumlah bahan.'))return;
- if(e.materialName&&e.qty){const m=state.materials.find(x=>x.name===e.materialName);if(m)m.stock=Math.max(0,(Number(m.stock)||0)-Number(e.qty||0));state.stockMoves=state.stockMoves.filter(x=>x.expenseId!=id)}
- state.expenses=state.expenses.filter(x=>x.id!=id);save();render()
+ const raw=document.getElementById('expenseMaterial').value;
+ const qty=Number(document.getElementById('expenseQty').value);
+ const amount=Number(document.getElementById('expenseAmount').value);
+
+ if(!raw)return alert('Pilih bahan terlebih dahulu.');
+ if(!(qty>0))return alert('Jumlah bahan harus diisi.');
+ if(!(amount>0))return alert('Total harga pembelian harus diisi.');
+
+ let name='';
+ let unit='pcs';
+ let material=null;
+
+ if(raw==='__other__'){
+  name=(document.getElementById('otherExpenseName')?.value||'').trim();
+
+  if(!name)
+   return alert('Masukkan nama bahan lain-lain terlebih dahulu.');
+
+ }else{
+  const idx=Number(raw);
+  material=state.materials[idx];
+
+  if(!material)
+   return alert('Bahan tidak ditemukan.');
+
+  name=material.name;
+  unit=material.unit||'pcs';
+
+  material.stock=(Number(material.stock)||0)+qty;
+  material.price=amount/qty;
+ }
+
+ const id=Date.now();
+
+ state.expenses.push({
+  id,
+  date:new Date().toISOString(),
+  name,
+  materialName:name,
+  qty,
+  unit,
+  amount,
+  other:raw==='__other__'
+ });
+
+ if(material){
+  state.stockMoves.push({
+   date:new Date().toISOString(),
+   type:'masuk',
+   name:material.name,
+   qty,
+   expenseId:id
+  });
+ }
+
+ save();
+ render();
+ alert('Pengeluaran tersimpan.');
 }
 
 /* LAPORAN */
