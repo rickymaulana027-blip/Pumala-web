@@ -2,1563 +2,412 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>PUMALA App</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#222}
-header{background:#111;color:#fff;padding:16px;position:sticky;top:0;z-index:3}
-header h1{margin:0;font-size:24px}
-nav{display:flex;gap:6px;overflow:auto;padding:10px;background:#fff;position:sticky;top:57px;z-index:2;border-bottom:1px solid #ddd}
-nav button,.btn{border:0;border-radius:9px;padding:10px 13px;background:#222;color:#fff;cursor:pointer}
-nav button.active{background:#e67e22}
-main{max-width:1100px;margin:auto;padding:16px}
-.page{display:none}.page.active{display:block}
-.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0000000d}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin:5px 0 10px}
-label{font-size:13px;font-weight:bold}
-.menu{border:1px solid #ddd;padding:14px;border-radius:10px;cursor:pointer}
-.menu h3{margin:0 0 5px}
-.menu:active{transform:scale(.99)}
-.danger{background:#c0392b}.green{background:#168a45}.orange{background:#e67e22}
-.qtybox{display:flex;align-items:center;gap:8px;margin-top:10px}
-.qtybox button{width:42px;height:42px;font-size:22px;border:0;border-radius:8px;background:#222;color:#fff}
-.qtybox input{width:70px;text-align:center;margin:0;font-weight:bold}
-table{width:100%;border-collapse:collapse;background:#fff}
-th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left;font-size:14px}
-.total{font-size:22px;font-weight:bold;text-align:right;margin:12px 0}
-.muted{color:#777;font-size:13px}.stat{font-size:25px;font-weight:bold}
-.material-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-.material-item{padding:14px;background:#f7f7f7;border-radius:10px;font-weight:bold}
-
-.lock-screen{
-  position:fixed;inset:0;z-index:99999;
-  background:linear-gradient(160deg,#111,#222);color:#fff;
-  display:flex;align-items:center;justify-content:center;padding:20px
+:root{
+ --primary:#e67e22;--primary2:#d86f14;--dark:#171717;--bg:#f6f7f9;
+ --card:#fff;--text:#202124;--muted:#74777c;--line:#e7e8eb;
+ --green:#168a45;--red:#c0392b;--shadow:0 5px 20px rgba(20,20,20,.06)
 }
-.lock-panel{width:min(360px,100%);text-align:center}
-.lock-title{font-size:24px;font-weight:700;margin-bottom:8px}
-.lock-subtitle{color:#aaa;font-size:14px;margin-bottom:20px}
-.pin-dots{display:flex;justify-content:center;gap:12px;margin:18px 0 28px}
-.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid #fff}
-.pin-dot.filled{background:#fff}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+body{padding-bottom:82px}
+header{
+ background:linear-gradient(135deg,#171717,#292929);color:#fff;padding:18px 18px 20px;
+ position:sticky;top:0;z-index:20
+}
+.header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{display:flex;align-items:center;gap:11px}.brand-icon{font-size:31px}.brand h1{font-size:22px;margin:0}
+.brand small{display:block;color:#bfc1c5;margin-top:3px}
+.sync-dot{font-size:12px;color:#cfd1d4;white-space:nowrap}
+nav{
+ max-width:1100px;margin:auto;display:flex;gap:8px;overflow:auto;padding:10px 14px;
+ background:#fff;border-bottom:1px solid var(--line);position:sticky;top:77px;z-index:15;
+ scrollbar-width:none
+}
+nav::-webkit-scrollbar{display:none}
+nav button{border:0;background:#f1f2f4;color:#444;padding:10px 13px;border-radius:12px;white-space:nowrap;font-weight:600}
+nav button.active{background:var(--primary);color:#fff}
+main{max-width:1100px;margin:auto;padding:18px 14px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,#fff,#fff7ef);border-color:#f4ddc7}
+.hero h2{margin:0 0 6px;font-size:24px}.hero p{margin:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.stat-card{padding:16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.stat-label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat{font-size:24px;font-weight:800}
+.shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.shortcut{
+ border:1px solid var(--line);background:#fff;border-radius:16px;padding:16px;text-align:left;
+ min-height:105px;transition:.15s;box-shadow:0 3px 12px rgba(0,0,0,.035)
+}
+.shortcut:active{transform:scale(.98)}.shortcut-icon{font-size:27px}.shortcut h3{margin:9px 0 3px;font-size:16px}
+.shortcut p{margin:0;color:var(--muted);font-size:12px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 12px}
+.section-title h2,.section-title h3{margin:0}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.menu{
+ background:#fff;border:1px solid var(--line);border-radius:17px;padding:16px;
+ min-height:140px;box-shadow:0 3px 12px rgba(0,0,0,.035)
+}
+.menu:active{transform:scale(.99)}.menu h3{margin:0 0 7px;font-size:16px}.price{font-weight:800;font-size:17px}
+.tap{color:var(--muted);font-size:12px;margin-top:12px}
+.qtybox{display:flex;align-items:center;gap:8px;margin-top:12px}
+.qtybox button{width:42px;height:42px;border:0;border-radius:12px;background:var(--dark);color:#fff;font-size:22px}
+.qtybox input{width:68px;text-align:center;margin:0}
+input,select{
+ width:100%;padding:12px;border:1px solid #d9dadd;border-radius:11px;background:#fff;outline:none
+}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px #e67e221a}
+label{display:block;font-size:12px;font-weight:700;margin:2px 0 5px;color:#4c4e52}
+.btn{
+ border:0;border-radius:11px;padding:11px 14px;background:var(--dark);color:#fff;font-weight:700;
+ margin:3px 3px 3px 0
+}.btn.green{background:var(--green)}.btn.orange{background:var(--primary)}.btn.danger{background:var(--red)}
+.total-box{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line);margin-top:12px}
+.total{font-size:23px;font-weight:800}
+.muted{color:var(--muted);font-size:13px}
+.material-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px}
+.material-item{padding:15px;background:#f7f7f8;border:1px solid var(--line);border-radius:13px;font-weight:700}
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;overflow:hidden}
+th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+th{font-size:12px;color:#666;background:#fafafa}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px}
+.quick-link{color:var(--primary2);font-weight:700;cursor:pointer}
+.empty{text-align:center;padding:25px;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+/* lock screen */
+.lock-screen{position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#111,#252525);color:#fff;display:flex;align-items:center;justify-content:center;padding:20px}
+.lock-panel{width:min(360px,100%);text-align:center}.lock-title{font-size:25px;font-weight:800}.lock-subtitle{color:#aaa;font-size:14px;margin:6px 0 18px}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:18px 0 25px}.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid #fff}.pin-dot.filled{background:#fff}
 .pin-error{height:20px;color:#ff8a80;font-size:13px;margin-bottom:8px}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:300px;margin:auto}
-.pin-btn{
-  width:78px;height:78px;max-width:100%;justify-self:center;
-  border-radius:50%;border:1px solid #555;background:#2b2b2b;color:#fff;
-  font-size:28px;cursor:pointer;-webkit-tap-highlight-color:transparent
-}
+.pin-btn{width:78px;height:78px;max-width:100%;justify-self:center;border-radius:50%;border:1px solid #555;background:#2b2b2b;color:#fff;font-size:28px}
 .pin-btn:active{background:#555;transform:scale(.96)}
 
+/* mobile bottom navigation */
+@media(max-width:700px){
+ body{padding-bottom:76px}
+ header{padding:14px 15px}.header-inner{align-items:flex-start}
+ nav{
+  position:fixed;left:0;right:0;bottom:0;top:auto;z-index:50;
+  max-width:none;padding:8px 7px calc(8px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);border-bottom:0;box-shadow:0 -5px 18px rgba(0,0,0,.08);
+  gap:3px
+ }
+ nav button{background:transparent;padding:8px 7px;font-size:10px;flex:1;min-width:62px}
+ nav button.active{background:#fff1e5;color:var(--primary2)}
+ main{padding:14px 11px}.card{padding:15px;border-radius:16px}
+ .shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .shortcut{padding:13px;min-height:103px}.shortcut-icon{font-size:24px}
+ .menu-grid{grid-template-columns:1fr 1fr;gap:9px}.menu{padding:13px;min-height:142px}
+ .menu h3{font-size:14px}.price{font-size:15px}
+ .grid{grid-template-columns:1fr}
+ .stat{font-size:21px}
+ .header-inner .sync-dot{font-size:10px}
+}
+@media(min-width:701px){.shortcut-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 
 <div id="lockScreen" class="lock-screen">
-  <div class="lock-panel">
-    <div style="font-size:46px;margin-bottom:8px">🔒</div>
-    <div class="lock-title">PUMALA</div>
-    <div class="lock-subtitle">Masukkan kata sandi untuk masuk</div>
-    <div id="pinDots" class="pin-dots">
-      <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
-      <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
-    </div>
-    <div id="pinError" class="pin-error"></div>
-    <div class="pin-grid">
-      <button class="pin-btn" onclick="pinPress('1')">1</button>
-      <button class="pin-btn" onclick="pinPress('2')">2</button>
-      <button class="pin-btn" onclick="pinPress('3')">3</button>
-      <button class="pin-btn" onclick="pinPress('4')">4</button>
-      <button class="pin-btn" onclick="pinPress('5')">5</button>
-      <button class="pin-btn" onclick="pinPress('6')">6</button>
-      <button class="pin-btn" onclick="pinPress('7')">7</button>
-      <button class="pin-btn" onclick="pinPress('8')">8</button>
-      <button class="pin-btn" onclick="pinPress('9')">9</button>
-      <button class="pin-btn" onclick="pinClear()">⌫</button>
-      <button class="pin-btn" onclick="pinPress('0')">0</button>
-      <button class="pin-btn" onclick="pinClearAll()">C</button>
-    </div>
+ <div class="lock-panel">
+  <div style="font-size:46px;margin-bottom:8px">🔒</div>
+  <div class="lock-title">PUMALA</div>
+  <div class="lock-subtitle">Masukkan kata sandi untuk masuk</div>
+  <div id="pinDots" class="pin-dots">
+   <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+   <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
   </div>
+  <div id="pinError" class="pin-error"></div>
+  <div class="pin-grid">
+   <button class="pin-btn" onclick="pinPress('1')">1</button><button class="pin-btn" onclick="pinPress('2')">2</button><button class="pin-btn" onclick="pinPress('3')">3</button>
+   <button class="pin-btn" onclick="pinPress('4')">4</button><button class="pin-btn" onclick="pinPress('5')">5</button><button class="pin-btn" onclick="pinPress('6')">6</button>
+   <button class="pin-btn" onclick="pinPress('7')">7</button><button class="pin-btn" onclick="pinPress('8')">8</button><button class="pin-btn" onclick="pinPress('9')">9</button>
+   <button class="pin-btn" onclick="pinClear()">⌫</button><button class="pin-btn" onclick="pinPress('0')">0</button><button class="pin-btn" onclick="pinClearAll()">C</button>
+  </div>
+ </div>
 </div>
 
-<header><h1>🍜 PUMALA App</h1><div class="muted" style="color:#bbb">Mie Get / Mie Nyemek</div></header>
+<header>
+ <div class="header-inner">
+  <div class="brand"><div class="brand-icon">🍜</div><div><h1>PUMALA</h1><small>Kasir & pencatatan usaha</small></div></div>
+  <div class="sync-dot" id="syncStatus">● Menyiapkan...</div>
+ </div>
+</header>
 <nav id="nav"></nav>
+
 <main>
-<section id="dashboard" class="page active"></section>
-<section id="kasir" class="page"></section>
-<section id="stok" class="page"></section>
-<section id="pemasukan" class="page"></section>
-<section id="pengeluaran" class="page"></section>
-<section id="laporan" class="page"></section>
-<section id="delivery" class="page"></section>
-<section id="backup" class="page"></section>
+ <section id="dashboard" class="page active"></section>
+ <section id="kasir" class="page"></section>
+ <section id="stok" class="page"></section>
+ <section id="pemasukan" class="page"></section>
+ <section id="pengeluaran" class="page"></section>
+ <section id="laporan" class="page"></section>
+ <section id="delivery" class="page"></section>
+ <section id="backup" class="page"></section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const KEY='pumala_main_v1';
-
 const PUMALA_PIN='230420';
 let enteredPin='';
-function updatePinDots(){
-  document.querySelectorAll('#pinDots .pin-dot').forEach((dot,i)=>{
-    dot.classList.toggle('filled',i<enteredPin.length);
-  });
-}
+function updatePinDots(){document.querySelectorAll('#pinDots .pin-dot').forEach((d,i)=>d.classList.toggle('filled',i<enteredPin.length))}
 function pinPress(n){
-  if(enteredPin.length>=PUMALA_PIN.length)return;
-  enteredPin+=n;
-  document.getElementById('pinError').textContent='';
-  updatePinDots();
-  if(enteredPin.length===PUMALA_PIN.length){
-    if(enteredPin===PUMALA_PIN){
-      document.getElementById('lockScreen').style.display='none';
-    }else{
-      document.getElementById('pinError').textContent='Kata sandi salah.';
-      setTimeout(()=>{enteredPin='';updatePinDots()},500);
-    }
-  }
+ if(enteredPin.length>=PUMALA_PIN.length)return;
+ enteredPin+=n;document.getElementById('pinError').textContent='';updatePinDots();
+ if(enteredPin.length===PUMALA_PIN.length){
+  if(enteredPin===PUMALA_PIN)document.getElementById('lockScreen').style.display='none';
+  else{document.getElementById('pinError').textContent='Kata sandi salah.';setTimeout(()=>{enteredPin='';updatePinDots()},500)}
+ }
 }
-function pinClear(){
-  enteredPin=enteredPin.slice(0,-1);
-  document.getElementById('pinError').textContent='';
-  updatePinDots();
-}
-function pinClearAll(){
-  enteredPin='';
-  document.getElementById('pinError').textContent='';
-  updatePinDots();
-}
-
+function pinClear(){enteredPin=enteredPin.slice(0,-1);document.getElementById('pinError').textContent='';updatePinDots()}
+function pinClearAll(){enteredPin='';document.getElementById('pinError').textContent='';updatePinDots()}
 
 const SUPABASE_URL='https://mgtnninfuktrkasybser.supabase.co';
 const SUPABASE_KEY='sb_publishable_-Ucxdn9WA_iiBklEMhICeg_ykXFifZ1';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-const defaultMaterials=[
- ['Mie','porsi'],['Telor','pcs'],['Sosis','pcs'],['Bakso','pcs'],
- ['Sterofoam','pcs'],['Sedotan','pcs'],['Sendok','pcs'],
- ['Kecap','botol'],['Saos','botol'],['Sayuran','kg'],
- ['Cabai','kg'],['Minyak','liter'],['Gas','tabung'],['Air','liter']
-];
-
-function emptyState(){
- return {
-  transactions:[],
-  expenses:[],
-  materials:defaultMaterials.map(x=>({
-   name:x[0],unit:x[1],stock:0,price:0,min:0
-  })),
-  stockMoves:[]
- };
-}
-
-function normalizeState(x){
- x=x&&typeof x==='object'?x:{};
- if(!Array.isArray(x.transactions))x.transactions=[];
- if(!Array.isArray(x.expenses))x.expenses=[];
- if(!Array.isArray(x.materials))x.materials=[];
- if(!Array.isArray(x.stockMoves))x.stockMoves=[];
- return x;
-}
-
-function hasRealData(x){
- x=normalizeState(x);
- return x.transactions.length>0 ||
-        x.expenses.length>0 ||
-        x.stockMoves.length>0 ||
-        x.materials.some(m =>
-          Number(m.stock||0)!==0 ||
-          Number(m.price||0)!==0
-        );
-}
-
+const defaultMaterials=[['Mie','porsi'],['Telor','pcs'],['Sosis','pcs'],['Bakso','pcs'],['Sterofoam','pcs'],['Sedotan','pcs'],['Sendok','pcs'],['Kecap','botol'],['Saos','botol'],['Sayuran','kg'],['Cabai','kg'],['Minyak','liter'],['Gas','tabung'],['Air','liter']];
+function emptyState(){return{transactions:[],expenses:[],materials:defaultMaterials.map(x=>({name:x[0],unit:x[1],stock:0,price:0,min:0})),stockMoves:[]}}
+function normalizeState(x){x=x&&typeof x==='object'?x:{};if(!Array.isArray(x.transactions))x.transactions=[];if(!Array.isArray(x.expenses))x.expenses=[];if(!Array.isArray(x.materials))x.materials=[];if(!Array.isArray(x.stockMoves))x.stockMoves=[];return x}
+function hasRealData(x){x=normalizeState(x);return x.transactions.length>0||x.expenses.length>0||x.stockMoves.length>0||x.materials.some(m=>Number(m.stock||0)!==0||Number(m.price||0)!==0)}
 let localState=JSON.parse(localStorage.getItem(KEY)||'null');
-let state=normalizeState(localState||emptyState());
-let cloudReady=false;
-let realtimeStarted=false;
-let currentPage='dashboard';
-
-function saveLocal(){
- localStorage.setItem(KEY,JSON.stringify(state));
-}
-
+let state=normalizeState(localState||emptyState()),cloudReady=false,realtimeStarted=false,currentPage='dashboard';
+function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
 async function save(){
- saveLocal();
- if(!cloudReady)return;
-
- const {error}=await supabaseClient
-  .from('pumala_state')
-  .upsert({
-   id:1,
-   data:state,
-   updated_at:new Date().toISOString()
-  });
-
+ saveLocal();if(!cloudReady)return;
+ const {error}=await supabaseClient.from('pumala_state').upsert({id:1,data:state,updated_at:new Date().toISOString()});
  if(error)console.error('Supabase save error:',error);
 }
-
 async function loadCloud(){
- const local=normalizeState(
-  JSON.parse(localStorage.getItem(KEY)||'null')||state
- );
-
- const {data,error}=await supabaseClient
-  .from('pumala_state')
-  .select('id,data,updated_at')
-  .eq('id',1)
-  .maybeSingle();
-
- if(error){
-  console.error('Supabase load error:',error);
-  state=local;
-  saveLocal();
-  cloudReady=true;
-  render();
-  return;
- }
-
+ const local=normalizeState(JSON.parse(localStorage.getItem(KEY)||'null')||state);
+ const {data,error}=await supabaseClient.from('pumala_state').select('id,data,updated_at').eq('id',1).maybeSingle();
+ if(error){console.error(error);state=local;saveLocal();cloudReady=true;setSync('● Offline / lokal');render();return}
  const cloud=normalizeState(data&&data.data);
-
- /*
-  * PENTING:
-  * Cloud kosong tidak boleh menimpa data lokal yang sudah ada.
-  */
- if(hasRealData(cloud)){
-  state=cloud;
-  saveLocal();
- }else if(hasRealData(local)){
-  state=local;
-  cloudReady=true;
-  await save();
-  render();
-  return;
- }else{
-  state=local;
-  saveLocal();
-
-  cloudReady=true;
-
-  if(!data){
-   await save();
-  }
-
-  render();
-  return;
- }
-
- cloudReady=true;
- render();
+ if(hasRealData(cloud)){state=cloud;saveLocal()}
+ else if(hasRealData(local)){state=local;cloudReady=true;await save();setSync('● Tersinkron');render();return}
+ else{state=local;saveLocal();cloudReady=true;if(!data)await save();setSync('● Tersinkron');render();return}
+ cloudReady=true;setSync('● Tersinkron');render();
 }
-
 function startRealtime(){
- if(realtimeStarted)return;
- realtimeStarted=true;
-
- supabaseClient
-  .channel('pumala-sync')
-  .on(
-   'postgres_changes',
-   {
-    event:'UPDATE',
-    schema:'public',
-    table:'pumala_state',
-    filter:'id=eq.1'
-   },
-   payload=>{
-    const remote=normalizeState(payload.new&&payload.new.data);
-
-    // Jangan menimpa data lokal dengan cloud kosong.
-    if(!hasRealData(remote) && hasRealData(state))return;
-
-    state=remote;
-    saveLocal();
-    render();
-   }
-  )
-  .subscribe();
+ if(realtimeStarted)return;realtimeStarted=true;
+ supabaseClient.channel('pumala-sync').on('postgres_changes',{event:'UPDATE',schema:'public',table:'pumala_state',filter:'id=eq.1'},payload=>{
+  const remote=normalizeState(payload.new&&payload.new.data);
+  if(!hasRealData(remote)&&hasRealData(state))return;
+  state=remote;saveLocal();render();
+ }).subscribe();
 }
-
-const rupiah=n=>new Intl.NumberFormat(
- 'id-ID',
- {
-  style:'currency',
-  currency:'IDR',
-  maximumFractionDigits:0
- }
-).format(Number(n)||0);
-
+function setSync(t){const e=document.getElementById('syncStatus');if(e)e.textContent=t}
+const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);
 const menus=[
  {id:'ori',name:'Mie Get / Nyemek Ori',price:10000},
  {id:'bs',name:'Mie Get / Nyemek + Baso / Sosis',price:12000},
  {id:'both',name:'Mie Get / Nyemek + Baso + Sosis',price:13000}
 ];
-
 let cart=[];
-
-const menuNames={
- dashboard:'Dashboard',
- kasir:'Kasir',
- stok:'Stok/Bahan',
- pemasukan:'Pemasukan',
- pengeluaran:'Pengeluaran',
- laporan:'Laporan',
- delivery:'Delivery',
- backup:'Backup'
-};
-
-function nav(){
- const items=[
-  ['dashboard','Dashboard'],
-  ['kasir','Kasir'],
-  ['stok','Stok/Bahan'],
-  ['pemasukan','Pemasukan'],
-  ['pengeluaran','Pengeluaran'],
-  ['laporan','Laporan'],
-  ['delivery','Delivery'],
-  ['backup','Backup']
- ];
-
- document.getElementById('nav').innerHTML=
-  items.map(x=>`
-   <button
-    class="${currentPage===x[0]?'active':''}"
-    onclick="show('${x[0]}')">
-    ${x[1]}
-   </button>
-  `).join('');
-}
-
-function show(id){
- currentPage=id;
-
- document.querySelectorAll('.page')
-  .forEach(x=>x.classList.remove('active'));
-
- document.getElementById(id)
-  .classList.add('active');
-
- nav();
- render();
-}
-
+const menuNames={dashboard:'Dashboard',kasir:'Kasir',stok:'Stok/Bahan',pemasukan:'Pemasukan',pengeluaran:'Pengeluaran',laporan:'Laporan',delivery:'Delivery',backup:'Backup'};
+const navItems=[['dashboard','🏠','Dashboard'],['kasir','🛒','Kasir'],['stok','📦','Stok'],['pemasukan','💰','Pemasukan'],['pengeluaran','💸','Pengeluaran'],['laporan','📊','Laporan'],['delivery','🛵','Delivery'],['backup','💾','Backup']];
+function nav(){document.getElementById('nav').innerHTML=navItems.map(x=>`<button class="${currentPage===x[0]?'active':''}" onclick="show('${x[0]}')">${x[1]} ${x[2]}</button>`).join('')}
+function show(id){currentPage=id;document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');nav();render()}
 function render(){
- dashboard();
- kasir();
- stok();
- pemasukan();
- pengeluaran();
- laporan();
- delivery();
- backup();
-
- document.querySelectorAll('.page')
-  .forEach(x=>x.classList.remove('active'));
-
- document.getElementById(currentPage)
-  .classList.add('active');
-
- nav();
+ dashboard();kasir();stok();pemasukan();pengeluaran();laporan();delivery();backup();
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(currentPage).classList.add('active');nav();
 }
 
-/* ================= DASHBOARD ================= */
-
+/* DASHBOARD */
 function dashboard(){
- const income=state.transactions.reduce(
-  (s,t)=>s+(Number(t.total)||0),0
- );
-
- const exp=state.expenses.reduce(
-  (s,e)=>s+(Number(e.amount)||0),0
- );
-
+ const today=todayKey();
+ const td=reportData(today,today);
+ const income=state.transactions.reduce((s,t)=>s+(Number(t.total)||0),0);
+ const exp=state.expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
  document.getElementById('dashboard').innerHTML=`
- <div class="card">
-  <h2>Dashboard</h2>
-
+  <div class="card hero">
+   <h2>Selamat datang di PUMALA 👋</h2>
+   <p>Kelola kasir, bahan, pengeluaran, dan laporan dari satu tempat.</p>
+  </div>
+  <div class="section-title"><h3>Ringkasan hari ini</h3><span class="muted">${new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'})}</span></div>
   <div class="grid">
-   <div class="card">
-    <div class="muted">Total Pemasukan</div>
-    <div class="stat">${rupiah(income)}</div>
-   </div>
-
-   <div class="card">
-    <div class="muted">Total Pengeluaran</div>
-    <div class="stat">${rupiah(exp)}</div>
-   </div>
-
-   <div class="card">
-    <div class="muted">Saldo Sementara</div>
-    <div class="stat">${rupiah(income-exp)}</div>
-   </div>
-
-   <div class="card">
-    <div class="muted">Transaksi</div>
-    <div class="stat">${state.transactions.length}</div>
+   <div class="stat-card"><div class="stat-label">Penjualan hari ini</div><div class="stat">${rupiah(td.income)}</div></div>
+   <div class="stat-card"><div class="stat-label">Pengeluaran hari ini</div><div class="stat">${rupiah(td.expense)}</div></div>
+   <div class="stat-card"><div class="stat-label">Saldo hari ini</div><div class="stat">${rupiah(td.income-td.expense)}</div></div>
+   <div class="stat-card"><div class="stat-label">Transaksi hari ini</div><div class="stat">${td.transactions.length}</div></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+   <div class="section-title"><h3>Pintasan menu</h3><span class="muted">Tekan untuk membuka</span></div>
+   <div class="shortcut-grid">
+    <button class="shortcut" onclick="show('kasir')"><div class="shortcut-icon">🛒</div><h3>Kasir</h3><p>Catat pesanan dan transaksi</p></button>
+    <button class="shortcut" onclick="show('stok')"><div class="shortcut-icon">📦</div><h3>Stok / Bahan</h3><p>Lihat dan tambah bahan</p></button>
+    <button class="shortcut" onclick="show('pemasukan')"><div class="shortcut-icon">💰</div><h3>Pemasukan</h3><p>Lihat riwayat penjualan</p></button>
+    <button class="shortcut" onclick="show('pengeluaran')"><div class="shortcut-icon">💸</div><h3>Pengeluaran</h3><p>Catat pembelian bahan</p></button>
+    <button class="shortcut" onclick="show('laporan')"><div class="shortcut-icon">📊</div><h3>Laporan</h3><p>Laporan harian dan periode</p></button>
+    <button class="shortcut" onclick="show('delivery')"><div class="shortcut-icon">🛵</div><h3>Delivery</h3><p>Hitung ongkir pesanan</p></button>
+    <button class="shortcut" onclick="show('backup')"><div class="shortcut-icon">💾</div><h3>Backup</h3><p>Simpan atau impor data</p></button>
    </div>
   </div>
- </div>
- `;
+  <div class="card">
+   <div class="section-title"><h3>Total sejak awal</h3></div>
+   <div class="grid">
+    <div><div class="muted">Total pemasukan</div><b>${rupiah(income)}</b></div>
+    <div><div class="muted">Total pengeluaran</div><b>${rupiah(exp)}</b></div>
+    <div><div class="muted">Total transaksi</div><b>${state.transactions.length}</b></div>
+   </div>
+  </div>`;
 }
 
-/* ================= KASIR ================= */
-
-function cartQty(id){
- const item=cart.find(x=>x.id===id);
- return item?item.qty:0;
-}
-
-function addOne(id){
- const m=menus.find(x=>x.id===id);
- if(!m)return;
-
- const old=cart.find(x=>x.id===id);
-
- if(old){
-  old.qty++;
- }else{
-  cart.push({...m,qty:1});
- }
-
- render();
-}
-
-function changeQty(id,delta){
- const item=cart.find(x=>x.id===id);
- if(!item)return;
-
- item.qty+=delta;
-
- if(item.qty<=0){
-  cart=cart.filter(x=>x.id!==id);
- }
-
- render();
-}
-
-function setQty(id,value){
- const item=cart.find(x=>x.id===id);
- if(!item)return;
-
- let q=parseInt(value,10);
-
- if(!Number.isFinite(q)||q<1){
-  cart=cart.filter(x=>x.id!==id);
- }else{
-  item.qty=q;
- }
-
- render();
-}
-
+/* KASIR */
+function cartQty(id){const item=cart.find(x=>x.id===id);return item?item.qty:0}
+function addOne(id){const m=menus.find(x=>x.id===id);if(!m)return;const old=cart.find(x=>x.id===id);old?old.qty++:cart.push({...m,qty:1});render()}
+function changeQty(id,delta){const item=cart.find(x=>x.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)cart=cart.filter(x=>x.id!==id);render()}
+function setQty(id,value){const item=cart.find(x=>x.id===id);if(!item)return;let q=parseInt(value,10);if(!Number.isFinite(q)||q<1)cart=cart.filter(x=>x.id!==id);else item.qty=q;render()}
 function addCustom(){
- const n=document.getElementById('customName').value.trim();
- const p=Number(document.getElementById('customPrice').value);
- const q=Number(document.getElementById('customQty').value)||1;
-
- if(!n||p<0||q<1){
-  return alert('Lengkapi nama, harga, dan Qty.');
- }
-
- cart.push({
-  id:'custom-'+Date.now(),
-  name:n+' (tambahan)',
-  price:p,
-  qty:q
- });
-
- render();
+ const n=document.getElementById('customName').value.trim(),p=Number(document.getElementById('customPrice').value),q=Number(document.getElementById('customQty').value)||1;
+ if(!n||p<0||q<1)return alert('Lengkapi nama, harga, dan Qty.');
+ cart.push({id:'custom-'+Date.now(),name:n+' (tambahan)',price:p,qty:q});render()
 }
-
-function removeCart(i){
- cart.splice(i,1);
- render();
-}
-
+function removeCart(i){cart.splice(i,1);render()}
 function saveTransaction(){
- if(!cart.length){
-  return alert('Pesanan masih kosong.');
- }
-
- const total=cart.reduce(
-  (s,x)=>s+x.price*x.qty,0
- );
-
- state.transactions.push({
-  id:Date.now(),
-  date:new Date().toISOString(),
-  items:cart.map(x=>({...x})),
-  total
- });
-
- save();
-
- cart=[];
-
- alert('Transaksi tersimpan.');
- render();
+ if(!cart.length)return alert('Pesanan masih kosong.');
+ const total=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ state.transactions.push({id:Date.now(),date:new Date().toISOString(),items:cart.map(x=>({...x})),total});
+ save();cart=[];alert('Transaksi tersimpan.');render()
 }
-
 function kasir(){
  document.getElementById('kasir').innerHTML=`
- <div class="card">
-  <h2>Kasir</h2>
-
-  <p class="muted">
-   Klik menu sekali untuk memasukkan 1 pcs.
-   Gunakan + / − untuk mengubah jumlah.
-  </p>
-
-  <div class="grid">
-
-   ${menus.map(m=>{
-    const q=cartQty(m.id);
-
-    return `
-    <div
-     class="menu"
-     onclick="addOne('${m.id}')">
-
-     <h3>${m.name}</h3>
-     <b>${rupiah(m.price)}</b>
-
-     ${
-      q>0
-      ? `
-       <div
-        class="qtybox"
-        onclick="event.stopPropagation()">
-
-        <button onclick="changeQty('${m.id}',-1)">
-         −
-        </button>
-
-        <input
-         type="number"
-         min="1"
-         value="${q}"
-         onclick="event.stopPropagation()"
-         onchange="setQty('${m.id}',this.value)">
-
-        <button onclick="changeQty('${m.id}',1)">
-         +
-        </button>
-       </div>
-      `
-      : `
-       <div class="muted" style="margin-top:10px">
-        Tap untuk tambah 1 pcs
-       </div>
-      `
-     }
-
-    </div>
-    `;
-   }).join('')}
-
-  </div>
+ <div class="card hero"><h2>🛒 Kasir</h2><p>Pilih menu. Satu ketukan = 1 pcs. Gunakan + / − untuk menyesuaikan jumlah.</p></div>
+ <div class="menu-grid">${menus.map(m=>{const q=cartQty(m.id);return `<div class="menu" onclick="addOne('${m.id}')"><h3>${m.name}</h3><div class="price">${rupiah(m.price)}</div>${q>0?`<div class="qtybox" onclick="event.stopPropagation()"><button onclick="changeQty('${m.id}',-1)">−</button><input type="number" min="1" value="${q}" onclick="event.stopPropagation()" onchange="setQty('${m.id}',this.value)"><button onclick="changeQty('${m.id}',1)">+</button></div>`:`<div class="tap">Tap untuk tambah 1 pcs</div>`}</div>`}).join('')}</div>
+ <div class="card" style="margin-top:14px"><div class="section-title"><h3>Pesanan tambahan</h3><span class="muted">Untuk item di luar menu utama</span></div>
+  <div class="grid"><div><label>Nama item</label><input id="customName" placeholder="Contoh: Es Teh"></div><div><label>Harga</label><input id="customPrice" type="number" placeholder="3000"></div><div><label>Qty</label><input id="customQty" type="number" min="1" value="1"></div></div>
+  <button class="btn" onclick="addCustom()">＋ Tambah Manual</button>
  </div>
-
- <div class="card">
-  <h3>Pesanan Tambahan / Manual</h3>
-
-  <div class="grid">
-   <div>
-    <label>Nama item</label>
-    <input
-     id="customName"
-     placeholder="Contoh: Es Teh">
-   </div>
-
-   <div>
-    <label>Harga</label>
-    <input
-     id="customPrice"
-     type="number"
-     placeholder="3000">
-   </div>
-
-   <div>
-    <label>Qty</label>
-    <input
-     id="customQty"
-     type="number"
-     min="1"
-     value="1">
-   </div>
-  </div>
-
-  <button
-   class="btn"
-   onclick="addCustom()">
-   Tambah Manual
-  </button>
- </div>
-
- <div class="card">
-  <h3>Pesanan Saat Ini</h3>
-
-  ${
-   cart.length
-   ?
-   cart.map((x,i)=>`
-    <div
-     style="padding:10px 0;border-bottom:1px solid #ddd">
-
-     <b>${x.name}</b>
-     × ${x.qty}
-
-     — <b>${rupiah(x.price*x.qty)}</b>
-
-     <button
-      class="btn danger"
-      onclick="removeCart(${i})">
-      Hapus
-     </button>
-    </div>
-   `).join('')
-   :
-   '<div class="muted">Belum ada pesanan.</div>'
-  }
-
-  <div class="total">
-   Total:
-   ${rupiah(
-    cart.reduce(
-     (s,x)=>s+x.price*x.qty,0
-    )
-   )}
-  </div>
-
-  <button
-   class="btn green"
-   onclick="saveTransaction()">
-   Simpan Transaksi
-  </button>
-
-  <button
-   class="btn danger"
-   onclick="cart=[];render()">
-   Kosongkan
-  </button>
- </div>
- `;
+ <div class="card"><div class="section-title"><h3>Pesanan saat ini</h3><span class="muted">${cart.length} jenis item</span></div>
+  ${cart.length?cart.map((x,i)=>`<div style="padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:center"><div><b>${x.name}</b><div class="muted">${x.qty} × ${rupiah(x.price)}</div></div><div><b>${rupiah(x.price*x.qty)}</b><br><button class="btn danger" onclick="removeCart(${i})">Hapus</button></div></div>`).join(''):'<div class="empty">Belum ada pesanan.</div>'}
+  <div class="total-box"><span>Total</span><span class="total">${rupiah(cart.reduce((s,x)=>s+x.price*x.qty,0))}</span></div>
+  <button class="btn green" onclick="saveTransaction()">✓ Simpan Transaksi</button><button class="btn danger" onclick="cart=[];render()">Kosongkan</button>
+ </div>`;
 }
 
-/* ================= STOK / BAHAN ================= */
-
+/* STOK */
 function stok(){
  document.getElementById('stok').innerHTML=`
- <div class="card">
-  <h2>Stok / Bahan</h2>
-
-  <p class="muted">
-   Di sini hanya ditampilkan nama bahan.
-   Data stok tetap disimpan di belakang layar untuk
-   kebutuhan pengeluaran.
-  </p>
-
-  <div class="material-list">
-
-   ${
-    state.materials.length
-    ?
-    state.materials.map(m=>`
-     <div class="material-item">
-      ${m.name}
-     </div>
-    `).join('')
-    :
-    '<div class="muted">Belum ada bahan.</div>'
-   }
-
-  </div>
+ <div class="card hero"><h2>📦 Stok / Bahan</h2><p>Daftar bahan ditampilkan berdasarkan nama. Jumlah stok tetap tersimpan untuk pencatatan pengeluaran.</p></div>
+ <div class="card"><div class="section-title"><h3>Daftar bahan</h3><span class="muted">${state.materials.length} bahan</span></div>
+  <div class="material-list">${state.materials.length?state.materials.map(m=>`<div class="material-item">${m.name}</div>`).join(''):'<div class="empty">Belum ada bahan.</div>'}</div>
  </div>
-
- <div class="card">
-  <h3>＋ Tambah Bahan</h3>
-
-  <label>Nama bahan</label>
-
-  <input
-   id="mn"
-   placeholder="Contoh: Keju">
-
-  <button
-   class="btn green"
-   onclick="addMaterial()">
-   Tambah Bahan
-  </button>
- </div>
- `;
+ <div class="card"><h3>＋ Tambah Bahan</h3><label>Nama bahan</label><input id="mn" placeholder="Contoh: Keju"><button class="btn green" onclick="addMaterial()">Tambah Bahan</button></div>`;
 }
-
 function addMaterial(){
- const input=document.getElementById('mn');
- const n=input.value.trim();
-
- if(!n){
-  return alert('Nama bahan wajib diisi.');
- }
-
- if(state.materials.some(
-  m=>m.name.toLowerCase()===n.toLowerCase()
- )){
-  return alert('Bahan tersebut sudah ada.');
- }
-
- state.materials.push({
-  name:n,
-  unit:'pcs',
-  stock:0,
-  price:0,
-  min:0
- });
-
- save();
- render();
+ const n=document.getElementById('mn').value.trim();if(!n)return alert('Nama bahan wajib diisi.');
+ if(state.materials.some(m=>m.name.toLowerCase()===n.toLowerCase()))return alert('Bahan tersebut sudah ada.');
+ state.materials.push({name:n,unit:'pcs',stock:0,price:0,min:0});save();render()
 }
+function delMaterial(i){if(confirm('Hapus bahan ini?')){state.materials.splice(i,1);save();render()}}
 
-function delMaterial(i){
- if(confirm('Hapus bahan ini?')){
-  state.materials.splice(i,1);
-  save();
-  render();
- }
-}
-
-/* ================= PEMASUKAN ================= */
-
+/* PEMASUKAN */
 function pemasukan(){
- document.getElementById('pemasukan').innerHTML=`
- <div class="card">
-  <h2>Pemasukan</h2>
-
-  ${
-   state.transactions.length
-   ?
-   `
-   <table>
-    <tr>
-     <th>Tanggal</th>
-     <th>Detail</th>
-     <th>Total</th>
-     <th>Aksi</th>
-    </tr>
-
-    ${
-     state.transactions.slice().reverse().map(t=>`
-      <tr>
-       <td>
-        ${new Date(t.date).toLocaleString('id-ID')}
-       </td>
-
-       <td>
-        ${(t.items||[])
-         .map(x=>x.name+' × '+x.qty)
-         .join(', ')}
-       </td>
-
-       <td>
-        ${rupiah(t.total)}
-       </td>
-
-       <td>
-        <button
-         class="btn danger"
-         onclick="delTx(${t.id})">
-         Hapus
-        </button>
-       </td>
-      </tr>
-     `).join('')
-    }
-   </table>
-   `
-   :
-   '<p class="muted">Belum ada transaksi.</p>'
-  }
- </div>
- `;
+ document.getElementById('pemasukan').innerHTML=`<div class="card hero"><h2>💰 Pemasukan</h2><p>Riwayat transaksi penjualan yang tersimpan di PUMALA.</p></div><div class="card">${state.transactions.length?`<div class="table-wrap"><table><tr><th>Tanggal</th><th>Detail</th><th>Total</th><th>Aksi</th></tr>${state.transactions.slice().reverse().map(t=>`<tr><td>${new Date(t.date).toLocaleString('id-ID')}</td><td>${(t.items||[]).map(x=>x.name+' × '+x.qty).join(', ')}</td><td><b>${rupiah(t.total)}</b></td><td><button class="btn danger" onclick="delTx(${t.id})">Hapus</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada transaksi.</div>'}</div>`;
 }
+function delTx(id){if(confirm('Hapus transaksi?')){state.transactions=state.transactions.filter(t=>t.id!=id);save();render()}}
 
-function delTx(id){
- if(confirm('Hapus transaksi?')){
-  state.transactions=
-   state.transactions.filter(t=>t.id!=id);
-
-  save();
-  render();
- }
-}
-
-/* ================= PENGELUARAN ================= */
-
+/* PENGELUARAN */
 function pengeluaran(){
- const options=state.materials.map(
-  (m,i)=>`
-   <option value="${i}">
-    ${m.name}
-   </option>
-  `
- ).join('');
-
+ const options=state.materials.map((m,i)=>`<option value="${i}">${m.name}</option>`).join('');
  document.getElementById('pengeluaran').innerHTML=`
- <div class="card">
-  <h2>Pengeluaran</h2>
-
-  <p class="muted">
-   Pilih bahan dari daftar Stok/Bahan.
-   Nama bahan tidak perlu diketik lagi.
-   Saat disimpan, stok bahan otomatis bertambah.
-  </p>
-
-  <div class="grid">
-
-   <div>
-    <label>Bahan</label>
-    <select id="expenseMaterial">
-     ${
-      options ||
-      '<option value="">Belum ada bahan</option>'
-     }
-    </select>
-   </div>
-
-   <div>
-    <label>Jumlah bahan</label>
-    <input
-     id="expenseQty"
-     type="number"
-     min="0.01"
-     step="0.01"
-     value="1">
-   </div>
-
-   <div>
-    <label>Total harga pembelian</label>
-    <input
-     id="expenseAmount"
-     type="number"
-     min="0"
-     placeholder="Contoh: 50000">
-   </div>
-
-  </div>
-
-  <button
-   class="btn green"
-   onclick="addExpense()">
-   ＋ Simpan Pengeluaran
-  </button>
- </div>
-
- <div class="card">
-  <h3>Riwayat Pengeluaran</h3>
-
-  ${
-   state.expenses.length
-   ?
-   `
-   <table>
-    <tr>
-     <th>Tanggal</th>
-     <th>Bahan</th>
-     <th>Jumlah</th>
-     <th>Nominal</th>
-     <th>Aksi</th>
-    </tr>
-
-    ${
-     state.expenses.slice().reverse().map(e=>`
-      <tr>
-       <td>${new Date(e.date).toLocaleString('id-ID')}</td>
-       <td>${e.materialName||e.name||'-'}</td>
-       <td>${e.qty??'-'} ${e.unit||''}</td>
-       <td>${rupiah(e.amount)}</td>
-       <td>
-        <button
-         class="btn danger"
-         onclick="delExp(${e.id})">
-         Hapus
-        </button>
-       </td>
-      </tr>
-     `).join('')
-    }
-   </table>
-   `
-   :
-   '<p class="muted">Belum ada pengeluaran.</p>'
-  }
- </div>
- `;
+ <div class="card hero"><h2>💸 Pengeluaran</h2><p>Pilih bahan yang sudah ada. Saat disimpan, pencatatan bahan akan ikut diperbarui.</p></div>
+ <div class="card"><div class="grid"><div><label>Bahan</label><select id="expenseMaterial">${options||'<option value="">Belum ada bahan</option>'}</select></div><div><label>Jumlah bahan</label><input id="expenseQty" type="number" min=".01" step=".01" value="1"></div><div><label>Total harga pembelian</label><input id="expenseAmount" type="number" min="0" placeholder="Contoh: 50000"></div></div><button class="btn green" onclick="addExpense()">＋ Simpan Pengeluaran</button></div>
+ <div class="card"><div class="section-title"><h3>Riwayat pengeluaran</h3><span class="muted">${state.expenses.length} catatan</span></div>${state.expenses.length?`<div class="table-wrap"><table><tr><th>Tanggal</th><th>Bahan</th><th>Jumlah</th><th>Nominal</th><th>Aksi</th></tr>${state.expenses.slice().reverse().map(e=>`<tr><td>${new Date(e.date).toLocaleString('id-ID')}</td><td>${e.materialName||e.name||'-'}</td><td>${e.qty??'-'} ${e.unit||''}</td><td>${rupiah(e.amount)}</td><td><button class="btn danger" onclick="delExp(${e.id})">Hapus</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Belum ada pengeluaran.</div>'}</div>`;
 }
-
 function addExpense(){
- const idx=Number(
-  document.getElementById('expenseMaterial').value
- );
-
- const qty=Number(
-  document.getElementById('expenseQty').value
- );
-
- const amount=Number(
-  document.getElementById('expenseAmount').value
- );
-
- if(!state.materials[idx]){
-  return alert('Pilih bahan terlebih dahulu.');
- }
-
- if(!(qty>0)){
-  return alert('Jumlah bahan harus diisi.');
- }
-
- if(!(amount>0)){
-  return alert('Total harga pembelian harus diisi.');
- }
-
- const material=state.materials[idx];
-
- material.stock=
-  (Number(material.stock)||0)+qty;
-
- material.price=amount/qty;
-
- const id=Date.now();
-
- state.expenses.push({
-  id:id,
-  date:new Date().toISOString(),
-  name:material.name,
-  materialName:material.name,
-  qty:qty,
-  unit:material.unit||'pcs',
-  amount:amount
- });
-
- state.stockMoves.push({
-  date:new Date().toISOString(),
-  type:'masuk',
-  name:material.name,
-  qty:qty,
-  expenseId:id
- });
-
- save();
- render();
-
- alert(
-  'Pengeluaran tersimpan dan stok '+
-  material.name+
-  ' bertambah '+qty+
-  ' '+(material.unit||'pcs')+'.'
- );
+ const idx=Number(document.getElementById('expenseMaterial').value),qty=Number(document.getElementById('expenseQty').value),amount=Number(document.getElementById('expenseAmount').value);
+ if(!state.materials[idx])return alert('Pilih bahan terlebih dahulu.');if(!(qty>0))return alert('Jumlah bahan harus diisi.');if(!(amount>0))return alert('Total harga pembelian harus diisi.');
+ const material=state.materials[idx];material.stock=(Number(material.stock)||0)+qty;material.price=amount/qty;const id=Date.now();
+ state.expenses.push({id,date:new Date().toISOString(),name:material.name,materialName:material.name,qty,unit:material.unit||'pcs',amount});
+ state.stockMoves.push({date:new Date().toISOString(),type:'masuk',name:material.name,qty,expenseId:id});save();render();alert('Pengeluaran tersimpan.')
 }
-
 function delExp(id){
- const e=state.expenses.find(x=>x.id==id);
-
- if(!e)return;
-
- if(!confirm(
-  'Hapus pengeluaran ini? Stok akan dikurangi kembali sesuai jumlah bahan.'
- ))return;
-
- if(e.materialName&&e.qty){
-  const m=state.materials.find(
-   x=>x.name===e.materialName
-  );
-
-  if(m){
-   m.stock=Math.max(
-    0,
-    (Number(m.stock)||0)-Number(e.qty||0)
-   );
-  }
-
-  state.stockMoves=
-   state.stockMoves.filter(x=>x.expenseId!=id);
- }
-
- state.expenses=
-  state.expenses.filter(x=>x.id!=id);
-
- save();
- render();
+ const e=state.expenses.find(x=>x.id==id);if(!e)return;if(!confirm('Hapus pengeluaran ini? Stok akan dikurangi kembali sesuai jumlah bahan.'))return;
+ if(e.materialName&&e.qty){const m=state.materials.find(x=>x.name===e.materialName);if(m)m.stock=Math.max(0,(Number(m.stock)||0)-Number(e.qty||0));state.stockMoves=state.stockMoves.filter(x=>x.expenseId!=id)}
+ state.expenses=state.expenses.filter(x=>x.id!=id);save();render()
 }
 
-/* ================= LAPORAN ================= */
-
-function localDateKey(date){
- const d=new Date(date);
-
- if(isNaN(d))return '';
-
- return d.getFullYear()+
-  '-'+String(d.getMonth()+1).padStart(2,'0')+
-  '-'+String(d.getDate()).padStart(2,'0');
-}
-
-function todayKey(){
- return localDateKey(new Date());
-}
-
+/* LAPORAN */
+function localDateKey(date){const d=new Date(date);if(isNaN(d))return '';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function todayKey(){return localDateKey(new Date())}
 function reportData(from,to){
- const transactions=
-  state.transactions.filter(t=>{
-   const d=localDateKey(t.date);
-   return d>=from&&d<=to;
-  });
-
- const expenses=
-  state.expenses.filter(e=>{
-   const d=localDateKey(e.date);
-   return d>=from&&d<=to;
-  });
-
- const income=transactions.reduce(
-  (s,t)=>s+(Number(t.total)||0),0
- );
-
- const expense=expenses.reduce(
-  (s,e)=>s+(Number(e.amount)||0),0
- );
-
- return {
-  transactions,
-  expenses,
-  income,
-  expense
- };
+ const transactions=state.transactions.filter(t=>{const d=localDateKey(t.date);return d>=from&&d<=to});
+ const expenses=state.expenses.filter(e=>{const d=localDateKey(e.date);return d>=from&&d<=to});
+ const income=transactions.reduce((s,t)=>s+(Number(t.total)||0),0),expense=expenses.reduce((s,e)=>s+(Number(e.amount)||0),0);
+ return{transactions,expenses,income,expense}
 }
-
 function reportRows(d){
- const rows=[];
-
- d.transactions.forEach(t=>{
-  rows.push({
-   date:t.date,
-   type:'Pemasukan',
-   detail:(t.items||[])
-    .map(x=>x.name+' × '+x.qty)
-    .join(', '),
-   amount:Number(t.total)||0
-  });
- });
-
- d.expenses.forEach(e=>{
-  rows.push({
-   date:e.date,
-   type:'Pengeluaran',
-   detail:e.materialName||e.name||'-',
-   amount:-(Number(e.amount)||0)
-  });
- });
-
- return rows.sort(
-  (a,b)=>new Date(b.date)-new Date(a.date)
- );
+ const rows=[];d.transactions.forEach(t=>rows.push({date:t.date,type:'Pemasukan',detail:(t.items||[]).map(x=>x.name+' × '+x.qty).join(', '),amount:Number(t.total)||0}));
+ d.expenses.forEach(e=>rows.push({date:e.date,type:'Pengeluaran',detail:e.materialName||e.name||'-',amount:-(Number(e.amount)||0)}));
+ return rows.sort((a,b)=>new Date(b.date)-new Date(a.date))
 }
-
-function reportTable(d){
- const rows=reportRows(d);
-
- if(!rows.length){
-  return '<p class="muted">Tidak ada data pada periode ini.</p>';
- }
-
- return `
- <table>
-  <tr>
-   <th>Tanggal</th>
-   <th>Jenis</th>
-   <th>Detail</th>
-   <th>Nominal</th>
-  </tr>
-
-  ${rows.map(r=>`
-   <tr>
-    <td>${new Date(r.date).toLocaleString('id-ID')}</td>
-    <td>${r.type}</td>
-    <td>${r.detail}</td>
-    <td>${rupiah(r.amount)}</td>
-   </tr>
-  `).join('')}
- </table>
- `;
-}
-
+function reportTable(d){const rows=reportRows(d);if(!rows.length)return '<div class="empty">Tidak ada data pada periode ini.</div>';return `<div class="table-wrap"><table><tr><th>Tanggal</th><th>Jenis</th><th>Detail</th><th>Nominal</th></tr>${rows.map(r=>`<tr><td>${new Date(r.date).toLocaleString('id-ID')}</td><td>${r.type}</td><td>${r.detail}</td><td>${rupiah(r.amount)}</td></tr>`).join('')}</table></div>`}
 function dailySummary(from,to){
- const d=reportData(from,to);
- const map={};
-
- d.transactions.forEach(t=>{
-  const k=localDateKey(t.date);
-  if(!map[k])map[k]={income:0,expense:0};
-  map[k].income+=Number(t.total)||0;
- });
-
- d.expenses.forEach(e=>{
-  const k=localDateKey(e.date);
-  if(!map[k])map[k]={income:0,expense:0};
-  map[k].expense+=Number(e.amount)||0;
- });
-
- const keys=Object.keys(map).sort().reverse();
-
- if(!keys.length){
-  return '<p class="muted">Belum ada data harian.</p>';
- }
-
- return `
- <table>
-  <tr>
-   <th>Tanggal</th>
-   <th>Pemasukan</th>
-   <th>Pengeluaran</th>
-   <th>Saldo</th>
-  </tr>
-
-  ${keys.map(k=>`
-   <tr>
-    <td>
-     ${new Date(k+'T00:00:00')
-      .toLocaleDateString('id-ID')}
-    </td>
-
-    <td>${rupiah(map[k].income)}</td>
-    <td>${rupiah(map[k].expense)}</td>
-    <td>
-     ${rupiah(
-      map[k].income-map[k].expense
-     )}
-    </td>
-   </tr>
-  `).join('')}
- </table>
- `;
+ const d=reportData(from,to),map={};d.transactions.forEach(t=>{const k=localDateKey(t.date);if(!map[k])map[k]={income:0,expense:0};map[k].income+=Number(t.total)||0});d.expenses.forEach(e=>{const k=localDateKey(e.date);if(!map[k])map[k]={income:0,expense:0};map[k].expense+=Number(e.amount)||0});
+ const keys=Object.keys(map).sort().reverse();if(!keys.length)return '<div class="empty">Belum ada data harian.</div>';
+ return `<div class="table-wrap"><table><tr><th>Tanggal</th><th>Pemasukan</th><th>Pengeluaran</th><th>Saldo</th></tr>${keys.map(k=>`<tr><td>${new Date(k+'T00:00:00').toLocaleDateString('id-ID')}</td><td>${rupiah(map[k].income)}</td><td>${rupiah(map[k].expense)}</td><td>${rupiah(map[k].income-map[k].expense)}</td></tr>`).join('')}</table></div>`
 }
-
 function laporan(){
- const today=todayKey();
- const todayData=reportData(today,today);
-
- const d=new Date();
- d.setDate(d.getDate()-6);
-
- const from7=localDateKey(d);
-
+ const today=todayKey(),todayData=reportData(today,today),d=new Date();d.setDate(d.getDate()-6);const from7=localDateKey(d);
  document.getElementById('laporan').innerHTML=`
- <div class="card">
-  <h2>📅 Laporan Hari Ini</h2>
-
-  <div class="grid">
-
-   <div>
-    <div class="muted">Pemasukan</div>
-    <div class="stat">
-     ${rupiah(todayData.income)}
-    </div>
-   </div>
-
-   <div>
-    <div class="muted">Pengeluaran</div>
-    <div class="stat">
-     ${rupiah(todayData.expense)}
-    </div>
-   </div>
-
-   <div>
-    <div class="muted">Saldo</div>
-    <div class="stat">
-     ${rupiah(
-      todayData.income-todayData.expense
-     )}
-    </div>
-   </div>
-
-   <div>
-    <div class="muted">Transaksi</div>
-    <div class="stat">
-     ${todayData.transactions.length}
-    </div>
-   </div>
-
-  </div>
-
-  <h3>Detail Hari Ini</h3>
-
-  ${reportTable(todayData)}
- </div>
-
- <div class="card">
-  <h2>📊 Laporan Periode</h2>
-
-  <div class="grid">
-
-   <div>
-    <label>Dari tanggal</label>
-    <input
-     id="reportFrom"
-     type="date"
-     value="${from7}">
-   </div>
-
-   <div>
-    <label>Sampai tanggal</label>
-    <input
-     id="reportTo"
-     type="date"
-     value="${today}">
-   </div>
-
-  </div>
-
-  <button
-   class="btn orange"
-   onclick="showPeriodReport()">
-   Tampilkan Laporan
-  </button>
-
-  <button
-   class="btn"
-   onclick="exportReportCSV()">
-   Export CSV
-  </button>
-
-  <div
-   id="periodReport"
-   style="margin-top:15px">
-  </div>
- </div>
-
- <div class="card">
-  <h3>Ringkasan Per Hari</h3>
-
-  ${dailySummary(from7,today)}
- </div>
- `;
-
- showPeriodReport();
+ <div class="card hero"><h2>📊 Laporan</h2><p>Lihat hasil penjualan hari ini atau pilih rentang tanggal.</p></div>
+ <div class="grid"><div class="stat-card"><div class="stat-label">Pemasukan hari ini</div><div class="stat">${rupiah(todayData.income)}</div></div><div class="stat-card"><div class="stat-label">Pengeluaran hari ini</div><div class="stat">${rupiah(todayData.expense)}</div></div><div class="stat-card"><div class="stat-label">Saldo hari ini</div><div class="stat">${rupiah(todayData.income-todayData.expense)}</div></div><div class="stat-card"><div class="stat-label">Transaksi hari ini</div><div class="stat">${todayData.transactions.length}</div></div></div>
+ <div class="card" style="margin-top:14px"><div class="section-title"><h3>Detail hari ini</h3></div>${reportTable(todayData)}</div>
+ <div class="card"><div class="section-title"><h3>Periode laporan</h3></div><div class="grid"><div><label>Dari tanggal</label><input id="reportFrom" type="date" value="${from7}"></div><div><label>Sampai tanggal</label><input id="reportTo" type="date" value="${today}"></div></div><button class="btn orange" onclick="showPeriodReport()">Tampilkan</button><button class="btn" onclick="exportReportCSV()">Export CSV</button><div id="periodReport" style="margin-top:15px"></div></div>
+ <div class="card"><h3>Ringkasan per hari</h3>${dailySummary(from7,today)}</div>`;
+ showPeriodReport()
 }
-
 function showPeriodReport(){
- const from=document.getElementById('reportFrom')?.value;
- const to=document.getElementById('reportTo')?.value;
-
- if(!from||!to)return;
-
- if(from>to){
-  return alert(
-   'Tanggal mulai tidak boleh setelah tanggal akhir.'
-  );
- }
-
+ const from=document.getElementById('reportFrom')?.value,to=document.getElementById('reportTo')?.value;if(!from||!to)return;if(from>to)return alert('Tanggal mulai tidak boleh setelah tanggal akhir.');
  const d=reportData(from,to);
-
- document.getElementById('periodReport').innerHTML=`
- <div class="grid">
-
-  <div>
-   <div class="muted">Total Pemasukan</div>
-   <div class="stat">${rupiah(d.income)}</div>
-  </div>
-
-  <div>
-   <div class="muted">Total Pengeluaran</div>
-   <div class="stat">${rupiah(d.expense)}</div>
-  </div>
-
-  <div>
-   <div class="muted">Saldo</div>
-   <div class="stat">
-    ${rupiah(d.income-d.expense)}
-   </div>
-  </div>
-
-  <div>
-   <div class="muted">Jumlah Transaksi</div>
-   <div class="stat">
-    ${d.transactions.length}
-   </div>
-  </div>
-
- </div>
-
- <hr>
-
- <h3>
-  Periode:
-  ${new Date(from+'T00:00:00')
-   .toLocaleDateString('id-ID')}
-  s/d
-  ${new Date(to+'T00:00:00')
-   .toLocaleDateString('id-ID')}
- </h3>
-
- ${reportTable(d)}
- `;
+ document.getElementById('periodReport').innerHTML=`<div class="grid"><div class="stat-card"><div class="stat-label">Total pemasukan</div><div class="stat">${rupiah(d.income)}</div></div><div class="stat-card"><div class="stat-label">Total pengeluaran</div><div class="stat">${rupiah(d.expense)}</div></div><div class="stat-card"><div class="stat-label">Saldo</div><div class="stat">${rupiah(d.income-d.expense)}</div></div><div class="stat-card"><div class="stat-label">Jumlah transaksi</div><div class="stat">${d.transactions.length}</div></div></div><hr><h3>Periode ${new Date(from+'T00:00:00').toLocaleDateString('id-ID')} s/d ${new Date(to+'T00:00:00').toLocaleDateString('id-ID')}</h3>${reportTable(d)}`
 }
-
 function exportReportCSV(){
- const from=document.getElementById('reportFrom')?.value;
- const to=document.getElementById('reportTo')?.value;
-
- if(!from||!to)return;
-
- const d=reportData(from,to);
-
- const rows=[
-  ['Tanggal','Jenis','Detail','Nominal']
- ];
-
- reportRows(d).forEach(x=>{
-  rows.push([
-   new Date(x.date).toLocaleString('id-ID'),
-   x.type,
-   x.detail,
-   x.amount
-  ]);
- });
-
- const csv=rows.map(r=>
-  r.map(v=>
-   `"${String(v).replaceAll('"','""')}"`
-  ).join(',')
- ).join('\n');
-
- const a=document.createElement('a');
-
- a.href=URL.createObjectURL(
-  new Blob([csv],{type:'text/csv'})
- );
-
- a.download=
-  'PUMALA_Laporan_'+from+'_sampai_'+to+'.csv';
-
- a.click();
+ const from=document.getElementById('reportFrom')?.value,to=document.getElementById('reportTo')?.value;if(!from||!to)return;const d=reportData(from,to),rows=[['Tanggal','Jenis','Detail','Nominal']];
+ reportRows(d).forEach(x=>rows.push([new Date(x.date).toLocaleString('id-ID'),x.type,x.detail,x.amount]));
+ const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='PUMALA_Laporan_'+from+'_sampai_'+to+'.csv';a.click()
 }
 
-/* ================= DELIVERY ================= */
-
+/* DELIVERY */
 function delivery(){
- document.getElementById('delivery').innerHTML=`
- <div class="card">
-  <h2>Kalkulator Delivery</h2>
-
-  <label>Jarak (km)</label>
-  <input
-   id="dk"
-   type="number"
-   step=".1"
-   value="1">
-
-  <label>Nilai pesanan</label>
-  <input
-   id="do"
-   type="number"
-   value="30000">
-
-  <button
-   class="btn orange"
-   onclick="calcDelivery()">
-   Hitung
-  </button>
-
-  <div
-   id="dr"
-   style="margin-top:15px">
-  </div>
-
-  <p class="muted">
-   Tarif: 0–1 km Rp3.000; 1–2 km Rp4.000;
-   2–3 km Rp5.000; 3–4 km Rp7.000;
-   4–5 km Rp9.000.
-   Di atas 5 km perlu negosiasi.
-   Minimum order Rp30.000.
-  </p>
- </div>
- `;
+ document.getElementById('delivery').innerHTML=`<div class="card hero"><h2>🛵 Delivery</h2><p>Hitung ongkir berdasarkan jarak dan nilai pesanan.</p></div><div class="card"><div class="grid"><div><label>Jarak (km)</label><input id="dk" type="number" step=".1" value="1"></div><div><label>Nilai pesanan</label><input id="do" type="number" value="30000"></div></div><button class="btn orange" onclick="calcDelivery()">Hitung Ongkir</button><div id="dr" style="margin-top:15px"></div><p class="muted">Tarif: 0–1 km Rp3.000; 1–2 km Rp4.000; 2–3 km Rp5.000; 3–4 km Rp7.000; 4–5 km Rp9.000. Di atas 5 km perlu negosiasi. Minimum order Rp30.000.</p></div>`
 }
-
 function calcDelivery(){
- const k=Number(
-  document.getElementById('dk').value
- );
-
- const o=Number(
-  document.getElementById('do').value
- );
-
- if(o<30000){
-  return document.getElementById('dr').innerHTML=
-   '<b>Minimum order Rp30.000.</b>';
- }
-
- const fee=
-  k<=1?3000:
-  k<=2?4000:
-  k<=3?5000:
-  k<=4?7000:
-  k<=5?9000:null;
-
- document.getElementById('dr').innerHTML=
-  fee===null
-  ?
-  '<b>Jarak di atas 5 km: perlu negosiasi.</b>'
-  :
-  `<b>Ongkir: ${rupiah(fee)}</b>
-   <br>Total + ongkir: ${rupiah(o+fee)}`;
+ const k=Number(document.getElementById('dk').value),o=Number(document.getElementById('do').value);if(o<30000)return document.getElementById('dr').innerHTML='<b>Minimum order Rp30.000.</b>';
+ const fee=k<=1?3000:k<=2?4000:k<=3?5000:k<=4?7000:k<=5?9000:null;
+ document.getElementById('dr').innerHTML=fee===null?'<b>Jarak di atas 5 km: perlu negosiasi.</b>':`<b>Ongkir: ${rupiah(fee)}</b><br>Total + ongkir: ${rupiah(o+fee)}`
 }
 
-/* ================= BACKUP ================= */
-
+/* BACKUP */
 function backup(){
- document.getElementById('backup').innerHTML=`
- <div class="card">
-  <h2>Backup & Import</h2>
-
-  <p>
-   Gunakan backup agar data PUMALA aman saat
-   pindah perangkat atau aplikasi.
-  </p>
-
-  <button
-   class="btn green"
-   onclick="downloadBackup()">
-   Download Backup JSON
-  </button>
-
-  <br><br>
-
-  <label>Import Backup JSON</label>
-
-  <input
-   type="file"
-   id="imp"
-   accept=".json"
-   onchange="importBackup(event)">
-
-  <p class="muted">
-   Import akan mengganti data aplikasi saat ini
-   dengan data dari file backup.
-  </p>
- </div>
- `;
+ document.getElementById('backup').innerHTML=`<div class="card hero"><h2>💾 Backup & Import</h2><p>Simpan salinan data PUMALA agar lebih aman saat pindah perangkat.</p></div><div class="card"><button class="btn green" onclick="downloadBackup()">Download Backup JSON</button><hr><label>Import Backup JSON</label><input type="file" id="imp" accept=".json" onchange="importBackup(event)"><p class="muted">Import akan mengganti data aplikasi saat ini dengan data dari file backup.</p></div>`
 }
-
-function downloadBackup(){
- const a=document.createElement('a');
-
- a.href=URL.createObjectURL(
-  new Blob(
-   [JSON.stringify(state,null,2)],
-   {type:'application/json'}
-  )
- );
-
- a.download='PUMALA_Backup.json';
- a.click();
-}
-
+function downloadBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='PUMALA_Backup.json';a.click()}
 async function importBackup(e){
- const f=e.target.files[0];
-
- if(!f)return;
-
- const r=new FileReader();
-
- r.onload=async()=>{
-  try{
-   const x=normalizeState(
-    JSON.parse(r.result)
-   );
-
-   if(
-    !Array.isArray(x.transactions)||
-    !Array.isArray(x.expenses)||
-    !Array.isArray(x.materials)
-   ){
-    throw new Error('Format tidak sesuai');
-   }
-
-   if(confirm(
-    'Ganti data saat ini dengan data dari backup?'
-   )){
-    state=x;
-
-    saveLocal();
-
-    // Setelah import, cloud boleh ditulis.
-    cloudReady=true;
-
-    await save();
-
-    render();
-
-    alert(
-     'Backup berhasil diimpor dan disimpan ke cloud.'
-    );
-   }
-
-  }catch(err){
-   console.error(err);
-   alert('File backup tidak valid.');
-  }
- };
-
- r.readAsText(f);
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();
+ r.onload=async()=>{try{const x=normalizeState(JSON.parse(r.result));if(!Array.isArray(x.transactions)||!Array.isArray(x.expenses)||!Array.isArray(x.materials))throw new Error('Format tidak sesuai');
+ if(confirm('Ganti data saat ini dengan data dari backup?')){state=x;saveLocal();cloudReady=true;await save();render();alert('Backup berhasil diimpor dan disimpan ke cloud.')}}catch(err){console.error(err);alert('File backup tidak valid.')}}
+ r.readAsText(f)
 }
 
-/* ================= ERROR ================= */
+window.addEventListener('error',e=>{
+ const old=document.getElementById('appError');if(old)return;
+ const box=document.createElement('div');box.id='appError';box.style='position:fixed;left:12px;right:12px;bottom:90px;z-index:9999;padding:14px;background:#fff3cd;color:#664d03;border:1px solid #ffecb5;border-radius:12px;font-family:Arial';
+ box.innerHTML='<b>Aplikasi mengalami error.</b><br>Silakan buka ulang aplikasi. Detail: '+String(e.message||'tidak diketahui');document.body.appendChild(box)
+});
 
-window.addEventListener(
- 'error',
- function(e){
-  const box=document.createElement('div');
-
-  box.style=
-   'padding:16px;margin:16px;background:#fff3cd;' +
-   'color:#664d03;border:1px solid #ffecb5;' +
-   'border-radius:10px;font-family:Arial';
-
-  box.innerHTML=
-   '<b>Aplikasi mengalami error.</b><br>'+
-   'Silakan buka ulang aplikasi. Detail: '+
-   String(e.message||'tidak diketahui');
-
-  document.body.appendChild(box);
- }
-);
-
-/* ================= START ================= */
-
-nav();
-render();
-loadCloud();
-startRealtime();
+nav();render();loadCloud();startRealtime();
 </script>
-
 <script>
-if(
- 'serviceWorker' in navigator &&
- location.protocol!=='file:'
-){
- window.addEventListener(
-  'load',
-  ()=>{
-   navigator.serviceWorker
-    .register('./sw.js')
-    .catch(()=>{});
-  }
- );
-}
+if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
-
 </body>
 </html>
