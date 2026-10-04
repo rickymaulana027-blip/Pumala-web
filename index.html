@@ -840,5 +840,47 @@ nav();render();renderNotificationPanel();loadCloud();startRealtime();restoreWebP
 <script>
 if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
+   <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
+
+  <script>
+    // Config Firebase milik Anda
+    const firebaseConfig = {
+      apiKey: "AIzaSyDRhtV_93D6m6IurrvUQvG10ye6FR7c8LE",
+      authDomain: "pumala-23.firebaseapp.com",
+      projectId: "pumala-23",
+      storageBucket: "pumala-23.firebasestorage.app",
+      messagingSenderId: "255115476195",
+      appId: "1:255115476195:web:1eec2931f502c8c5c0d9d6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          messaging.useServiceWorker(registration);
+          return Notification.requestPermission();
+        })
+        .then((permission) => {
+          if (permission === 'granted') {
+            return messaging.getToken({ 
+              vapidKey: 'BAro2x_K3gns5EavlzRU7YBGYKY85PXFYTEXLALSJuGNy79mgtvTOlOWuN7m2_-1oBSluY71U-9ykR6j_EJUfrw' 
+            });
+          }
+        })
+        .then((token) => {
+          if (token) {
+            console.log('==== TOKEN HP ADMIN ====');
+            console.log(token);
+            console.log('========================');
+          }
+        })
+        .catch((err) => console.error('Error Notifikasi:', err));
+    }
+  </script>
+
 </body>
 </html>
