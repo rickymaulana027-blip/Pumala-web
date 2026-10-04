@@ -840,17 +840,14 @@ nav();render();renderNotificationPanel();loadCloud();startRealtime();restoreWebP
 <script>
 if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
-   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
-
-    <!-- Firebase SDK -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
   <script>
+    // Konfigurasi Firebase Anda
     const firebaseConfig = {
-      apiKey: "AIzaSyDRhtV_93D6m6IurrvUQvG10ye...", // Biarkan config asli Anda yang ada di index.html
+      apiKey: "AIzaSyDRhtV_93D6m6IurrvUQvG10ye...", // Pakai apiKey asli Anda
       authDomain: "pumala-23.firebaseapp.com",
       projectId: "pumala-23",
       storageBucket: "pumala-23.appspot.com",
@@ -858,11 +855,13 @@ if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventLi
       appId: "1:255115476195:web:1eec2931f502c..."
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
     const messaging = firebase.messaging();
 
-    // Fungsi untuk mengaktifkan notifikasi saat tombol ditekan
-    function aktifkanNotifikasiAdmin() {
+    // Fungsi Utama untuk Mendaftarkan Push Notifikasi
+    function mintaIzinNotifikasiFCM() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
           .then((registration) => {
@@ -871,33 +870,32 @@ if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventLi
           })
           .then((permission) => {
             if (permission === 'granted') {
-              // Update tampilan ke status Aktif
-              updateStatusTampilanNotif(true);
+              paksaStatusTampilanAktif();
               return messaging.getToken({ 
-                vapidKey: 'BAro2x_K3gns5EavlzRU7YBGYKY85PXFYTEXLALSJuGNy79mgtvTOlOWuN7m2_-1oBSluY71U-9ykR6j_EJUfrw' 
+                vapidKey: 'WEB_PUSH_CERTIFICATE_VAPID_KEY_ANDA' // Masukkan VAPID Key Anda
               });
-            } else {
-              updateStatusTampilanNotif(false);
             }
           })
           .then((token) => {
             if (token) {
-              console.log('==== TOKEN HP ADMIN ====');
+              console.log('==== TOKEN HP ADMIN TERDAFTAR ====');
               console.log(token);
               localStorage.setItem('fcm_admin_token', token);
+              localStorage.setItem('pumala_notif_active', 'true');
+              paksaStatusTampilanAktif();
             }
           })
-          .catch((err) => console.error('Error Notifikasi:', err));
+          .catch((err) => console.error('FCM Error:', err));
       }
     }
 
-    // Fungsi penyesuai status di layar agar tidak berbeda lagi
-    function updateStatusTampilanNotif(isGranted) {
-      const statusBadge = document.querySelector('.notif-status') || document.querySelector('[class*="Notifikasi"]');
-      if (Notification.permission === 'granted' || isGranted) {
-        // Cari semua elemen status "Notifikasi belum aktif" dan ganti teksnya
-        document.querySelectorAll('*').forEach(el => {
-          if (el.children.length === 0 && el.textContent.trim() === 'Notifikasi belum aktif') {
+    // Fungsi Pengunci Tampilan (Mencegah kembali ke "belum aktif")
+    function paksaStatusTampilanAktif() {
+      if (Notification.permission === 'granted') {
+        // Cari elemen status badge dan ubah
+        const badges = document.querySelectorAll('.notif-status, [class*="badge"], div, span');
+        badges.forEach(el => {
+          if (el.children.length === 0 && el.textContent.trim().includes('Notifikasi belum aktif')) {
             el.textContent = 'Notifikasi aktif';
             el.style.backgroundColor = '#d1fae5';
             el.style.color = '#065f46';
@@ -906,28 +904,23 @@ if('serviceWorker' in navigator && location.protocol!=='file:')window.addEventLi
       }
     }
 
-    // Jalankan pengecekan status saat halaman dimuat
+    // Jalankan pemantau berkala (MutationObserver & Interval)
     document.addEventListener('DOMContentLoaded', () => {
-      updateStatusTampilanNotif();
-      
-      // Pasang fungsi ke tombol "Aktifkan Notifikasi"
-      document.querySelectorAll('button').forEach(btn => {
-        if (btn.textContent.includes('Aktifkan Notifikasi')) {
-          btn.addEventListener('click', aktifkanNotifikasiAdmin);
+      // Pemicu otomatis jika izin browser sudah pernah di-Allow sebelumnya
+      if (Notification.permission === 'granted') {
+        mintaIzinNotifikasiFCM();
+      }
+
+      // Tautkan tombol "Aktifkan Notifikasi" ke fungsi Firebase
+      document.body.addEventListener('click', (e) => {
+        if (e.target && e.target.textContent.includes('Aktifkan Notifikasi')) {
+          mintaIzinNotifikasiFCM();
         }
       });
-    });
-  </script>
 
-        .then((token) => {
-          if (token) {
-            console.log('==== TOKEN HP ADMIN ====');
-            console.log(token);
-            console.log('========================');
-          }
-        })
-        .catch((err) => console.error('Error Notifikasi:', err));
-    }
+      // Kunci tampilan agar tidak tertimpa oleh render() bawaan
+      setInterval(paksaStatusTampilanAktif, 1000);
+    });
   </script>
 
 </body>
