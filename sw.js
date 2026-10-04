@@ -1,39 +1,28 @@
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
 
-// Ganti dengan Config Firebase Project Anda
-const firebaseConfig = {
-  apiKey: "API_KEY_FIREBASE_ANDA",
-  authDomain: "PROJECT_ID_ANDA.firebaseapp.com",
-  projectId: "PROJECT_ID_ANDA",
-  storageBucket: "PROJECT_ID_ANDA.appspot.com",
-  messagingSenderId: "SENDER_ID_ANDA",
-  appId: "APP_ID_ANDA"
-};
-
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
-
-// Menangani Notifikasi Melayang saat HP Layar Terkunci / App Tertutup
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification.title || "🛒 Pesanan Baru Masuk!";
-  const options = {
-    body: payload.notification.body || "Ada pesanan baru di pumala.my.id",
-    icon: '/icon.png',
-    badge: '/icon.png',
-    vibrate: [500, 200, 500],
-    data: {
-      url: 'https://pumala.my.id'
-    }
-  };
-
-  self.registration.showNotification(title, options);
+// Konfigurasi Firebase (Sesuaikan jika diperlukan)
+firebase.initializeApp({
+  apiKey: "AIzaSyDRhtV_93D6m6IurrvUQvG10ye6FR7c8LE", 
+  authDomain: "pumala-23.firebaseapp.com",
+  projectId: "pumala-23",
+  storageBucket: "pumala-23.firebasestorage.app",
+  messagingSenderId: "255115476195",
+  appId: "1:255115476195:web:1eec2931f502c8c5c0d9d6"
 });
 
-// Buka Dashboard saat Notifikasi diklik
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
+const messaging = firebase.messaging();
+
+// Menangani notifikasi yang masuk saat halaman/aplikasi sedang di latar belakang
+messaging.onBackgroundMessage((payload) => {
+  console.log('[sw.js] Pesan latar belakang diterima: ', payload);
+
+  const notificationTitle = payload.notification?.title || 'Pesanan Baru!';
+  const notificationOptions = {
+    body: payload.notification?.body || 'Ada pesanan masuk di PUMALA.',
+    icon: '/icon.png', // Ganti sesuai path ikon aplikasi Anda jika ada
+    badge: '/icon.png'
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
