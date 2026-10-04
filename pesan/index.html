@@ -182,11 +182,20 @@ async function submitOrder(){
    cloud.onlineOrders.push(onlineOrder);
    const up=await fetch(SUPABASE_URL+"/rest/v1/pumala_state?id=eq.1",{method:'PATCH',headers:{...headers,"Prefer":"return=minimal"},body:JSON.stringify({data:cloud,updated_at:new Date().toISOString()})});
    if(!up.ok)throw new Error("Gagal mengirim pesanan ke Kasir");
-   // Kirim push notification ke perangkat Kasir yang sudah mengaktifkan Push.
-   try{
-    await fetch(SUPABASE_URL+"/functions/v1/notify-kasir",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({order:onlineOrder})});
-   }catch(pushErr){console.warn("Push notification gagal dikirim, pesanan tetap tersimpan.",pushErr)}
-  }else{
+            // Kirim sinyal pemicu notifikasi
+      try {
+              if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            type: 'NEW_ORDER',
+            title: '🔔 Pesanan Baru Masuk!',
+            body: `Pesanan ${orderNo} dari ${name}`
+          });
+        }
+      } catch (pushErr) {
+        console.warn("Pemicu notifikasi lokal error:", pushErr);
+      }
+
+
    throw new Error('Supabase belum terhubung. Pesanan nyata tidak dapat dikirim.');
   }
   document.getElementById("orderNumber").textContent=orderNo;
