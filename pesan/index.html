@@ -15,6 +15,7 @@ main{padding:18px}.hello{font-size:24px;font-weight:800}.muted{font-size:14px;co
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.food{border:1px solid #e3e8ef;border-radius:17px;overflow:hidden}.photo{height:120px;background:#eaf2ff;display:grid;place-items:center;font-size:45px}.info{padding:11px}.name{font-weight:700;font-size:14px}.price{color:#1769e0;font-weight:800;margin-top:5px}.add{float:right;margin-top:-28px;border:0;background:#1769e0;color:#fff;width:34px;height:34px;border-radius:11px;font-size:22px}
 .cartbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:10px 14px;background:#fff;border-top:1px solid #e3e8ef;z-index:10}.cartbtn,.primary{width:100%;border:0;border-radius:15px;background:#1769e0;color:#fff;padding:15px;font-weight:800}.cartbtn{display:flex;justify-content:space-between}
 .panel{display:none}.panel.show{display:block}.back{border:0;background:#eef5ff;color:#1769e0;padding:9px 12px;border-radius:10px;font-weight:700}.title{font-size:22px;font-weight:800;margin:18px 0}.row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #e5e9ef}.qty{display:flex;align-items:center;gap:9px}.qty button{border:0;background:#eef5ff;color:#1769e0;width:31px;height:31px;border-radius:9px;font-size:18px}.total{display:flex;justify-content:space-between;padding:18px 0;font-weight:800;font-size:18px}.choice{display:flex;gap:8px}.choice button{flex:1;padding:13px;border:1px solid #dfe5ec;background:#fff;border-radius:13px;font-weight:700}.choice .sel{border:2px solid #1769e0;background:#f3f7ff;color:#1769e0}.field{margin:13px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.field input,.field textarea{width:100%;padding:13px;border:1px solid #dfe5ec;border-radius:13px;font:inherit}.field textarea{height:76px}.summary{background:#f5f7fa;border-radius:14px;padding:13px;margin-bottom:15px}.success{text-align:center;padding:42px 20px}.check{margin:auto;width:70px;height:70px;border-radius:50%;background:#e9f7ef;color:#199653;display:grid;place-items:center;font-size:38px}
+.btn-wa{background:#25d366;color:#fff;margin-top:10px;text-decoration:none;display:inline-block;line-height:20px}
 </style>
 </head>
 <body>
@@ -52,13 +53,18 @@ main{padding:18px}.hello{font-size:24px;font-weight:800}.muted{font-size:14px;co
 <section id="success" class="panel"><div class="success">
 <div class="check">✓</div><h2>Pesanan diterima!</h2><div>Nomor pesanan</div><h1 id="orderNumber">#P-0001</h1>
 <div id="successSummary" class="summary" style="text-align:left"></div>
-<button class="primary" onclick="resetOrder()">Kembali ke Menu</button>
+<a id="waButton" href="#" target="_blank" class="primary btn-wa">📲 Konfirmasi via WhatsApp Kasir</a>
+<button class="primary" style="margin-top:10px;background:#718096" onclick="resetOrder()">Kembali ke Menu</button>
 </div></section>
 
 <div id="cartBar" class="cartbar" style="display:none"><button class="cartbtn" onclick="showCart()"><span>🛒 <span id="itemCount">0</span> item</span><span id="barTotal">Rp0 →</span></button></div>
 </div>
 
 <script>
+// --- PENGATURAN NOMOR KASIR ---
+// Ganti nomor WhatsApp kasir/pemilik di bawah ini (Gunakan format 62, contoh: 6281234567890)
+const WA_KASIR_NUMBER = '6282117692463'; 
+
 const SUPABASE_URL = 'https://mgtnninfuktrkasybser.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_-Ucxdn9WA_iiBklEMhICeg_ykXFifZ1';
 
@@ -69,6 +75,11 @@ const fallbackMenu=[
 ];
 
 let menu=fallbackMenu,cart={},delivery=true,payment="cash",activeCategory="Semua";
+
+// Meminta Izin Notifikasi Browser saat Halaman Dibuka
+if ('Notification' in window) {
+  Notification.requestPermission();
+}
 
 async function loadPumalaMenu(){
  menu=[...fallbackMenu];
@@ -154,14 +165,19 @@ async function submitOrder(){
  if(!name||!phone){alert("Isi nama dan nomor WhatsApp dulu.");return}
  const t=totals();
  const orderNo="#P-"+Math.floor(1000+Math.random()*9000);
+ const landmarkText = delivery ? document.getElementById("landmark").value.trim() : "";
+ const noteText = delivery ? document.getElementById("note").value.trim() : "";
+ const orderNoteText = document.getElementById("orderNote").value.trim();
+
  const payload={
   order_no:orderNo,customer_name:name,customer_phone:phone,
   order_type:delivery?"delivery":"pickup",
-  landmark:delivery?document.getElementById("landmark").value.trim():"",
-  note:delivery?document.getElementById("note").value.trim():"",
-  orderNote:document.getElementById("orderNote").value.trim(),
+  landmark:landmarkText,
+  note:noteText,
+  orderNote:orderNoteText,
   payment,total:t.total,status:"baru",created_at:new Date().toISOString()
  };
+ 
  const status=document.getElementById("status");
  status.textContent="Menyiapkan pesanan...";
  try{
@@ -183,22 +199,39 @@ async function submitOrder(){
    const up=await fetch(SUPABASE_URL+"/rest/v1/pumala_state?id=eq.1",{method:'PATCH',headers:{...headers,"Prefer":"return=minimal"},body:JSON.stringify({data:cloud,updated_at:new Date().toISOString()})});
    if(!up.ok)throw new Error("Gagal mengirim pesanan ke Kasir");
 
-   try {
-     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-       navigator.serviceWorker.controller.postMessage({
-         type: 'NEW_ORDER',
-         title: '🔔 Pesanan Baru Masuk!',
-         body: `Pesanan ${orderNo} dari ${name}`
-       });
-     }
-   } catch (pushErr) {
-     console.warn("Pemicu notifikasi lokal error:", pushErr);
+   // Notifikasi Browser Lokal
+   if ('Notification' in window && Notification.permission === 'granted') {
+     new Notification('🔔 Pesanan Berhasil Dikirim!', {
+       body: `Pesanan ${orderNo} a.n ${name} telah diterima.`,
+       icon: 'https://via.placeholder.com/128/1769e0/ffffff?text=P'
+     });
    }
   }
 
+  // Format Pesan WhatsApp ke Kasir
+  let itemDetails = Object.values(cart).map(x => `• ${x.name} x${x.qty} (${rp(x.price * x.qty)})`).join("\n");
+  let waText = `Halo Kasir PUMALA, saya mau konfirmasi pesanan:\n\n` +
+               `*No Pesanan:* ${orderNo}\n` +
+               `*Nama:* ${name}\n` +
+               `*No WA:* ${phone}\n` +
+               `*Jenis:* ${delivery ? '🛵 Delivery (Diantar)' : '🏪 Ambil Sendiri'}\n` +
+               (delivery && landmarkText ? `*Patokan:* ${landmarkText}\n` : '') +
+               (delivery && noteText ? `*Catatan Kurir:* ${noteText}\n` : '') +
+               (orderNoteText ? `*Catatan Pesanan:* ${orderNoteText}\n` : '') +
+               `*Pembayaran:* ${payment.toUpperCase()}\n\n` +
+               `*Rincian Menu:*\n${itemDetails}\n\n` +
+               `*Total:* ${rp(t.total)}`;
+
+  const waUrl = `https://wa.me/${WA_KASIR_NUMBER}?text=${encodeURIComponent(waText)}`;
+  document.getElementById("waButton").href = waUrl;
+
   document.getElementById("orderNumber").textContent=orderNo;
-  document.getElementById("successSummary").innerHTML=`<b>${escapeHtml(name)}</b><br>${delivery?"🛵 Delivery":"🏪 Ambil sendiri"}<br>💳 ${payment.toUpperCase()}${document.getElementById("orderNote").value.trim()?`<br>📝 ${escapeHtml(document.getElementById("orderNote").value.trim())}`:""}<br><br><b>Total ${rp(t.total)}</b>`;
+  document.getElementById("successSummary").innerHTML=`<b>${escapeHtml(name)}</b><br>${delivery?"🛵 Delivery":"🏪 Ambil sendiri"}<br>💳 ${payment.toUpperCase()}${orderNoteText?`<br>📝 ${escapeHtml(orderNoteText)}`:""}<br><br><b>Total ${rp(t.total)}</b>`;
   cart={};renderCart();show("success");
+  
+  // Otomatis arahkan ke WhatsApp
+  window.open(waUrl, '_blank');
+
  }catch(e){
   console.error(e);
   status.textContent="Pesanan belum tersimpan. Periksa koneksi atau pengaturan Supabase.";
