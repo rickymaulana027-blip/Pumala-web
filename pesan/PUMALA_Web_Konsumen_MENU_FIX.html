@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PUMALA — Pesan</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef2f7;font-family:Arial,sans-serif;color:#172033}
+.app{max-width:480px;margin:auto;min-height:100vh;background:#fff;padding-bottom:92px}
+header{position:sticky;top:0;background:#fff;padding:15px 18px;border-bottom:1px solid #e6eaf0;z-index:5}
+.brand{font-size:23px;font-weight:800;color:#1769e0}.mark{display:inline-grid;place-items:center;background:#1769e0;color:#fff;width:35px;height:35px;border-radius:11px;margin-right:8px}
+main{padding:18px}.hello{font-size:24px;font-weight:800}.muted{font-size:14px;color:#718096;margin:6px 0 16px}
+.search{padding:13px;border:1px solid #e2e7ee;background:#f5f7fa;border-radius:14px;color:#8792a2}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.food{border:1px solid #e3e8ef;border-radius:17px;overflow:hidden}.photo{height:120px;background:#eaf2ff;display:grid;place-items:center;font-size:45px}.info{padding:11px}.name{font-weight:700;font-size:14px}.price{color:#1769e0;font-weight:800;margin-top:5px}.add{float:right;margin-top:-28px;border:0;background:#1769e0;color:#fff;width:34px;height:34px;border-radius:11px;font-size:22px}
+.cartbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);padding:10px 14px;background:#fff;border-top:1px solid #e3e8ef;z-index:10}.cartbtn,.primary{width:100%;border:0;border-radius:15px;background:#1769e0;color:#fff;padding:15px;font-weight:800}.cartbtn{display:flex;justify-content:space-between}
+.panel{display:none}.panel.show{display:block}.back{border:0;background:#eef5ff;color:#1769e0;padding:9px 12px;border-radius:10px;font-weight:700}.title{font-size:22px;font-weight:800;margin:18px 0}.row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #e5e9ef}.qty{display:flex;align-items:center;gap:9px}.qty button{border:0;background:#eef5ff;color:#1769e0;width:31px;height:31px;border-radius:9px;font-size:18px}.total{display:flex;justify-content:space-between;padding:18px 0;font-weight:800;font-size:18px}.choice{display:flex;gap:8px}.choice button{flex:1;padding:13px;border:1px solid #dfe5ec;background:#fff;border-radius:13px;font-weight:700}.choice .sel{border:2px solid #1769e0;background:#f3f7ff;color:#1769e0}.field{margin:13px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.field input,.field textarea{width:100%;padding:13px;border:1px solid #dfe5ec;border-radius:13px;font:inherit}.field textarea{height:76px}.summary{background:#f5f7fa;border-radius:14px;padding:13px;margin-bottom:15px}.success{text-align:center;padding:42px 20px}.check{margin:auto;width:70px;height:70px;border-radius:50%;background:#e9f7ef;color:#199653;display:grid;place-items:center;font-size:38px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><span class="mark">P</span>PUMALA</div></header>
+
+<section id="menu" class="panel show"><main>
+<div class="hello">Mau pesan apa? 👋</div>
+<div class="muted">Pilih menu favoritmu.</div>
+<input id="menuSearch" class="search" placeholder="🔍 Cari menu..." oninput="renderMenu()">
+<h2>Menu</h2>
+<div id="menuGrid" class="grid"></div>
+</main></section>
+
+<section id="cart" class="panel"><main>
+<button class="back" onclick="show('menu')">← Kembali</button><div class="title">🛒 Keranjang</div>
+<div id="cartItems"></div><div class="total"><span>Total</span><span id="cartTotal">Rp0</span></div>
+<button class="primary" onclick="goCheckout()">Lanjutkan Pesanan</button>
+</main></section>
+
+<section id="checkout" class="panel"><main>
+<button class="back" onclick="show('cart')">← Kembali</button><div class="title">Detail Pesanan</div>
+<div id="checkoutSummary" class="summary"></div>
+<div style="font-size:13px;font-weight:700;margin-bottom:7px">Pesanan</div>
+<div class="choice"><button id="deliveryBtn" class="sel" onclick="setDelivery(true)">🛵 Diantar</button><button id="pickupBtn" onclick="setDelivery(false)">🏪 Ambil</button></div>
+<div class="field"><label>Nama</label><input id="customerName" placeholder="Nama kamu"></div>
+<div class="field"><label>Nomor WhatsApp</label><input id="customerPhone" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
+<div id="deliveryFields"><div class="field"><label>Patokan lokasi</label><input id="landmark" placeholder="Contoh: sebelah masjid"></div><div class="field"><label>Catatan kurir (opsional)</label><textarea id="note" placeholder="Contoh: masuk gang kedua"></textarea></div></div><div class="field"><label>Catatan pesanan (opsional)</label><textarea id="orderNote" placeholder="Tulis catatan pesanan di sini..."></textarea><div class="muted" style="margin-top:6px">Contoh: pedas, tidak pakai bawang, kuah sedikit, dll.</div></div>
+<div class="field"><label>Cara pembayaran</label><div class="choice"><button id="cashBtn" class="sel" onclick="setPayment('cash')">💵 Cash</button><button id="qrisBtn" onclick="setPayment('qris')">📱 QRIS</button></div></div>
+<div class="total"><span>Total</span><span id="checkoutTotal">Rp0</span></div>
+<button class="primary" onclick="submitOrder()">PESAN SEKARANG</button>
+<p id="status" class="muted"></p>
+</main></section>
+
+<section id="success" class="panel"><div class="success">
+<div class="check">✓</div><h2>Pesanan diterima!</h2><div>Nomor pesanan</div><h1 id="orderNumber">#P-0001</h1>
+<div id="successSummary" class="summary" style="text-align:left"></div>
+<button class="primary" onclick="resetOrder()">Kembali ke Menu</button>
+</div></section>
+
+<div id="cartBar" class="cartbar" style="display:none"><button class="cartbtn" onclick="showCart()"><span>🛒 <span id="itemCount">0</span> item</span><span id="barTotal">Rp0 →</span></button></div>
+</div>
+
+<script>
+/*
+  PUMALA CONSUMER — MENU PUMALA
+  1) Isi SUPABASE_URL dan SUPABASE_ANON_KEY.
+  2) Tabel yang disiapkan:
+     menu_items(id, name, price, category, emoji, active)
+     orders(id, order_no, customer_name, customer_phone, order_type,
+            landmark, note, payment, total, status, created_at)
+     order_items(id, order_id, menu_id, menu_name, price, qty, subtotal)
+  3) Saat sudah terhubung, submitOrder() dapat dikirim ke Supabase.
+*/
+const SUPABASE_URL = 'https://mgtnninfuktrkasybser.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-Ucxdn9WA_iiBklEMhICeg_ykXFifZ1';
+
+// Menu yang sama dengan menu Kasir PUMALA saat ini.
+const fallbackMenu=[
+ {id:"ori",name:"Mie Get / Nyemek Ori",price:10000,category:"Makanan",emoji:"🍜"},
+ {id:"bs",name:"Mie Get / Nyemek + Baso / Sosis",price:12000,category:"Makanan",emoji:"🍜"},
+ {id:"both",name:"Mie Get / Nyemek + Baso + Sosis",price:13000,category:"Makanan",emoji:"🍜"}
+];
+
+let menu=fallbackMenu,cart={},delivery=true,payment="cash",activeCategory="Semua";
+async function loadPumalaMenu(){
+ // Tampilkan menu cadangan lebih dulu agar menu tidak pernah kosong.
+ menu=[...fallbackMenu];
+ renderMenu();
+ try{
+  const headers={apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY};
+  const r=await fetch(SUPABASE_URL+'/rest/v1/pumala_state?id=eq.1&select=data',{headers,cache:'no-store'});
+  if(!r.ok)throw new Error('Gagal mengambil menu PUMALA');
+  const rows=await r.json(); const data=rows[0]?.data||{};
+  if(Array.isArray(data.menus)&&data.menus.length){
+   const loaded=data.menus.filter(x=>x&&x.name&&Number(x.price)>=0&&x.active!==false).map((x,i)=>({id:x.id!=null?String(x.id):'menu-'+i,name:String(x.name),price:Number(x.price)||0,category:x.category||'Makanan',emoji:x.emoji||'🍽️'}));
+   if(loaded.length) menu=loaded;
+  }
+ }catch(e){ console.warn('Menu PUMALA tidak dapat dimuat, memakai menu cadangan.',e); }
+ renderMenu();
+}
+
+const rp=n=>"Rp"+Number(n).toLocaleString("id-ID");
+
+function show(id){
+ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));
+ document.getElementById(id).classList.add("show");scrollTo(0,0);
+}
+function renderMenu(){
+ const q=(document.getElementById("menuSearch")?.value||"").trim().toLowerCase();
+ const filtered=menu.filter(x=>!q||String(x.name).toLowerCase().includes(q));
+ document.getElementById("menuGrid").innerHTML=filtered.length?filtered.map(x=>{
+  const safeId=encodeURIComponent(String(x.id));
+  return `<div class="food"><div class="photo">${x.emoji||"🍽️"}</div><div class="info"><div class="name">${escapeHtml(x.name)}</div><div class="price">${rp(x.price)}</div><button class="add" onclick="add(decodeURIComponent('${safeId}'))">+</button></div></div>`;
+ }).join(""):"<p class='muted'>Menu tidak ditemukan.</p>";
+}
+function escapeHtml(v){return String(v??"").replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+
+function add(id){
+ const m=menu.find(x=>String(x.id)===String(id));if(!m)return;
+ const key=String(m.id); if(!cart[key])cart[key]={...m,qty:0};cart[key].qty++;renderCart();
+}
+function change(id,d){
+ id=String(id); if(!cart[id])return;cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];renderCart();
+}
+function totals(){
+ let count=0,total=0;Object.values(cart).forEach(x=>{count+=x.qty;total+=x.price*x.qty});return{count,total};
+}
+function renderCart(){
+ const t=totals();document.getElementById("itemCount").textContent=t.count;
+ document.getElementById("barTotal").textContent=rp(t.total)+" →";
+ document.getElementById("cartTotal").textContent=rp(t.total);
+ document.getElementById("checkoutTotal").textContent=rp(t.total);
+ document.getElementById("cartBar").style.display=t.count?"block":"none";
+ document.getElementById("cartItems").innerHTML=Object.values(cart).map(x=>`
+ <div class="row"><div><b>${x.name}</b><small style="display:block;color:#718096">${rp(x.price)}</small></div>
+ <div class="qty"><button onclick="change(${x.id},-1)">−</button><b>${x.qty}</b><button onclick="change(${x.id},1)">+</button></div></div>`).join("")||"<p class='muted'>Keranjang masih kosong.</p>";
+}
+function showCart(){show("cart");renderCart()}
+function goCheckout(){
+ if(!totals().count){alert("Keranjang masih kosong.");return}
+ let h=Object.values(cart).map(x=>`<div style="display:flex;justify-content:space-between;padding:4px 0"><span>${x.name} × ${x.qty}</span><b>${rp(x.price*x.qty)}</b></div>`).join("");
+ document.getElementById("checkoutSummary").innerHTML=h;
+ show("checkout");renderCart();
+}
+function setDelivery(v){
+ delivery=v;deliveryBtn.classList.toggle("sel",v);pickupBtn.classList.toggle("sel",!v);
+ document.getElementById("deliveryFields").style.display=v?"block":"none";
+}
+function setPayment(v){
+ payment=v;cashBtn.classList.toggle("sel",v==="cash");qrisBtn.classList.toggle("sel",v==="qris");
+}
+async function submitOrder(){
+ const name=document.getElementById("customerName").value.trim();
+ const phone=document.getElementById("customerPhone").value.trim();
+ if(!name||!phone){alert("Isi nama dan nomor WhatsApp dulu.");return}
+ const t=totals();
+ const orderNo="#P-"+Math.floor(1000+Math.random()*9000);
+ const payload={
+  order_no:orderNo,customer_name:name,customer_phone:phone,
+  order_type:delivery?"delivery":"pickup",
+  landmark:delivery?document.getElementById("landmark").value.trim():"",
+  note:delivery?document.getElementById("note").value.trim():"",
+  orderNote:document.getElementById("orderNote").value.trim(),
+  payment,total:t.total,status:"baru",created_at:new Date().toISOString()
+ };
+ const status=document.getElementById("status");
+ status.textContent="Menyiapkan pesanan...";
+ try{
+  if(SUPABASE_URL && SUPABASE_ANON_KEY){
+   // Pesanan online disimpan ke state PUMALA yang sama agar Kasir menerima secara realtime.
+   const headers={"apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY,"Content-Type":"application/json"};
+   const get=await fetch(SUPABASE_URL+"/rest/v1/pumala_state?id=eq.1&select=data",{headers});
+   if(!get.ok)throw new Error("Gagal membaca data PUMALA");
+   const arr=await get.json();
+   const cloud=arr[0]?.data||{};
+   cloud.onlineOrders=Array.isArray(cloud.onlineOrders)?cloud.onlineOrders:[];
+   const onlineOrder={
+    id:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    orderNo,customerName:name,customerPhone:phone,
+    orderType:payload.order_type,landmark:payload.landmark,note:payload.note,orderNote:payload.orderNote,
+    payment,total:t.total,status:'baru',createdAt:payload.created_at,
+    items:Object.values(cart).map(x=>({menuId:x.id,name:x.name,price:x.price,qty:x.qty,subtotal:x.price*x.qty}))
+   };
+   cloud.onlineOrders.push(onlineOrder);
+   const up=await fetch(SUPABASE_URL+"/rest/v1/pumala_state?id=eq.1",{method:'PATCH',headers:{...headers,"Prefer":"return=minimal"},body:JSON.stringify({data:cloud,updated_at:new Date().toISOString()})});
+   if(!up.ok)throw new Error("Gagal mengirim pesanan ke Kasir");
+   // Kirim push notification ke perangkat Kasir yang sudah mengaktifkan Push.
+   try{
+    await fetch(SUPABASE_URL+"/functions/v1/notify-kasir",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({order:onlineOrder})});
+   }catch(pushErr){console.warn("Push notification gagal dikirim, pesanan tetap tersimpan.",pushErr)}
+  }else{
+   throw new Error('Supabase belum terhubung. Pesanan nyata tidak dapat dikirim.');
+  }
+  document.getElementById("orderNumber").textContent=orderNo;
+  document.getElementById("successSummary").innerHTML=`<b>${name}</b><br>${delivery?"🛵 Delivery":"🏪 Ambil sendiri"}<br>💳 ${payment.toUpperCase()}${document.getElementById("orderNote").value.trim()?`<br>📝 ${document.getElementById("orderNote").value.trim()}`:""}<br><br><b>Total ${rp(t.total)}</b>`;
+  cart={};renderCart();show("success");
+ }catch(e){status.textContent="Pesanan belum tersimpan. Periksa koneksi atau pengaturan Supabase."}
+}
+function resetOrder(){show("menu");document.getElementById("status").textContent=""}
+loadPumalaMenu();renderCart();
+</script>
+</body></html>
