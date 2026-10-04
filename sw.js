@@ -1,28 +1,210 @@
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+/* =========================================================
+   PUMALA - Service Worker
+   Web Push Notification
+   ========================================================= */
 
-// Konfigurasi Firebase (Sesuaikan jika diperlukan)
-firebase.initializeApp({
-  apiKey: "AIzaSyDRhtV_93D6m6IurrvUQvG10ye6FR7c8LE", 
-  authDomain: "pumala-23.firebaseapp.com",
-  projectId: "pumala-23",
-  storageBucket: "pumala-23.firebasestorage.app",
-  messagingSenderId: "255115476195",
-  appId: "1:255115476195:web:1eec2931f502c8c5c0d9d6"
+const APP_URL = '/';
+
+/* ---------------------------------------------------------
+   INSTALL
+   --------------------------------------------------------- */
+self.addEventListener('install', event => {
+  self.skipWaiting();
 });
 
-const messaging = firebase.messaging();
+/* ---------------------------------------------------------
+   ACTIVATE
+   --------------------------------------------------------- */
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    self.clients.claim()
+  );
+});
 
-// Menangani notifikasi yang masuk saat halaman/aplikasi sedang di latar belakang
-messaging.onBackgroundMessage((payload) => {
-  console.log('[sw.js] Pesan latar belakang diterima: ', payload);
+/* ---------------------------------------------------------
+   PUSH
+   Menerima notifikasi dari server.
+   Bagian ini tetap bekerja walaupun halaman kasir
+   sedang ditutup.
+   --------------------------------------------------------- */
+self.addEventListener('push', event => {
 
-  const notificationTitle = payload.notification?.title || 'Pesanan Baru!';
-  const notificationOptions = {
-    body: payload.notification?.body || 'Ada pesanan masuk di PUMALA.',
-    icon: '/icon.png', // Ganti sesuai path ikon aplikasi Anda jika ada
-    badge: '/icon.png'
+  let data = {};
+
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (error) {
+
+    try {
+      data = {
+        body: event.data
+          ? event.data.text()
+          : ''
+      };
+    } catch (e) {
+      data = {};
+    }
+
+  }
+
+  const title =
+    data.title ||
+    'PUMALA — Pesanan Baru';
+
+  const body =
+    data.body ||
+    data.message ||
+    'Ada pesanan baru masuk. Silakan buka PUMALA untuk melihat pesanan.';
+
+  const options = {
+
+    body: body,
+
+    icon:
+      data.icon ||
+      '/icon-192.png',
+
+    badge:
+      data.badge ||
+      '/icon-192.png',
+
+    tag:
+      data.tag ||
+      'pumala-pesanan-baru',
+
+    renotify: true,
+
+    requireInteraction: true,
+
+    vibrate: [
+      300,
+      100,
+      300,
+      100,
+      500
+    ],
+
+    data: {
+
+      url:
+        data.url ||
+        APP_URL,
+
+      orderId:
+        data.orderId ||
+        data.order_id ||
+        null,
+
+      orderNo:
+        data.orderNo ||
+        data.order_no ||
+        null
+
+    },
+
+    actions: [
+      {
+        action: 'open',
+        title: 'Lihat Pesanan'
+      }
+    ]
+
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  event.waitUntil(
+    self.registration.showNotification(
+      title,
+      options
+    )
+  );
+
 });
+
+/* ---------------------------------------------------------
+   NOTIFICATION CLICK
+   --------------------------------------------------------- */
+self.addEventListener(
+  'notificationclick',
+  event => {
+
+    event.notification.close();
+
+    const data =
+      event.notification.data || {};
+
+    const targetUrl =
+      data.url ||
+      APP_URL;
+
+    event.waitUntil(
+
+      clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      })
+
+      .then(clientList => {
+
+        /*
+         * Kalau PUMALA sudah terbuka,
+         * fokus ke jendelanya.
+         */
+        for (const client of clientList) {
+
+          if ('focus' in client) {
+            return client.focus();
+          }
+
+        }
+
+        /*
+         * Kalau PUMALA belum terbuka,
+         * buka PUMALA.
+         */
+        if (clients.openWindow) {
+          return clients.openWindow(
+            targetUrl
+          );
+        }
+
+        return null;
+
+      })
+
+    );
+
+  }
+);
+
+/* ---------------------------------------------------------
+   NOTIFICATION CLOSE
+   --------------------------------------------------------- */
+self.addEventListener(
+  'notificationclose',
+  event => {
+
+    // Tidak ada tindakan khusus.
+
+  }
+);
+
+/* ---------------------------------------------------------
+   MESSAGE
+   --------------------------------------------------------- */
+self.addEventListener(
+  'message',
+  event => {
+
+    if (
+      event.data ===
+      'SKIP_WAITING'
+    ) {
+
+      self.skipWaiting();
+
+    }
+
+  }
+);
