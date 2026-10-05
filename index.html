@@ -342,7 +342,7 @@ function renderNotificationPanel(){
 }
 function toggleNotifPanel(open){const p=document.getElementById('notifPanel');if(!p)return;const showIt=open===undefined?!p.classList.contains('show'):open;p.classList.toggle('show',showIt);if(showIt){unreadNotifications=0;renderNotificationPanel()}}
 function markNotificationsRead(){unreadNotifications=0;renderNotificationPanel()}
-const PUSH_VAPID_PUBLIC_KEY='da6423a629826f452d4962f8ad8496053dfd5c98463d52c5203a7e4399e1b8b8';
+const PUSH_VAPID_PUBLIC_KEY='BBsBSL7HvA4Xs-Et5jIeV_oxNFi8pUdJYDMtVOuK-zL45J9lsfMWtpUefw8PgGr34_qXlpXIXKPhvmNmwaMYeWQ';
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(c=>c.charCodeAt(0)));}
 async function activateWebPush(){
  if(!('serviceWorker' in navigator)){alert('Browser ini belum mendukung notifikasi Push.');return false;}
