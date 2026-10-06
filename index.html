@@ -477,8 +477,19 @@ function dashboard(){
  const previousMonth=reportData(localDateKey(previousMonthStart),previousMonthEnd);
  const currentMonth=reportData(currentMonthKey,currentMonthEnd);
 
+ // Memisahkan pemasukan bulan ini berdasarkan metode pembayaran (Cash & QRIS)
+ const currentTransactions = state.transactions.filter(t => {
+  const d = localDateKey(t.date);
+  return d >= currentMonthKey && d <= currentMonthEnd;
+ });
+ const currentMonthCash = currentTransactions.filter(t => (t.payment || 'cash') === 'cash').reduce((s,t) => s + (Number(t.total) || 0), 0);
+ const currentMonthQris = currentTransactions.filter(t => t.payment === 'qris').reduce((s,t) => s + (Number(t.total) || 0), 0);
+
  const previousBalance=previousMonth.income-previousMonth.expense;
- const runningBalance=previousBalance+currentMonth.income-currentMonth.expense;
+ 
+ // Saldo berjalan dipisah menjadi saldo Cash dan saldo QRIS
+ const runningBalanceCash = previousBalance + currentMonthCash - currentMonth.expense;
+ const runningBalanceQris = currentMonthQris;
 
  const monthName=d=>d.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
  const dailyDate=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -496,7 +507,7 @@ function dashboard(){
     <button class="shortcut" onclick="show('keuangan')"><div class="shortcut-icon">💰</div><h3>Keuangan</h3><p>Kelola pemasukan, pengeluaran & QRIS</p></button>
     <button class="shortcut" onclick="show('laporan')"><div class="shortcut-icon">📊</div><h3>Laporan</h3><p>Laporan harian dan periode</p></button>
     <button class="shortcut" onclick="show('delivery')"><div class="shortcut-icon">🛵</div><h3>Delivery</h3><p>Kelola pesanan delivery</p></button>
-     <button class="shortcut" onclick="show('riwayat')"><div class="shortcut-icon">🧾</div><h3>Riwayat Pesanan</h3><p>Lihat pesanan online yang selesai</p></button>
+    <button class="shortcut" onclick="show('riwayat')"><div class="shortcut-icon">🧾</div><h3>Riwayat Pesanan</h3><p>Lihat pesanan online yang selesai</p></button>
     <button class="shortcut" onclick="show('backup')"><div class="shortcut-icon">💾</div><h3>Backup</h3><p>Simpan atau impor data</p></button>
    </div>
   </div>
@@ -521,16 +532,25 @@ function dashboard(){
   <div class="card">
    <div class="grid">
     <div><div class="muted">Saldo Bulan Kemarin</div><b>${rupiah(previousBalance)}</b></div>
-    <div><div class="muted">＋ Pemasukan Bulan Ini</div><b>${rupiah(currentMonth.income)}</b></div>
+    <div><div class="muted">＋ Pemasukan Cash Bulan Ini</div><b>${rupiah(currentMonthCash)}</b></div>
+    <div><div class="muted">＋ Pemasukan QRIS Bulan Ini</div><b>${rupiah(currentMonthQris)}</b></div>
+   </div>
+   <div class="grid" style="margin-top:10px">
     <div><div class="muted">− Pengeluaran Bulan Ini</div><b>${rupiah(currentMonth.expense)}</b></div>
    </div>
+   
    <div class="total-box" style="margin-top:14px">
-    <span>Saldo Berjalan</span>
-    <span class="total">${rupiah(runningBalance)}</span>
+    <span>Saldo Berjalan (Cash)</span>
+    <span class="total">${rupiah(runningBalanceCash)}</span>
    </div>
-   <div class="muted" style="margin-top:8px">Saldo bulan kemarin + pemasukan bulan ini − pengeluaran bulan ini</div>
+   <div class="total-box" style="margin-top:8px; background:#f4f0ff; border-color:#e2d9ff;">
+    <span style="color:var(--purple);">Saldo Berjalan (QRIS)</span>
+    <span class="total" style="color:var(--purple);">${rupiah(runningBalanceQris)}</span>
+   </div>
+   <div class="muted" style="margin-top:8px">Saldo cash = saldo bulan kemarin + pemasukan cash bulan ini − pengeluaran bulan ini.<br>Saldo QRIS = total pemasukan QRIS bulan ini.</div>
   </div>`;
 }
+
 
 function renderOnlineOrders(){
  const host=document.getElementById('dashboard');if(!host)return;
