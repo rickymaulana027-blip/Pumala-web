@@ -222,6 +222,90 @@ input,select{border-color:#d7e5df;border-radius:12px}input:focus,select:focus{bo
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="PUMALA Kasir">
+
+<style id="pumala-mobile-modern-ui">
+:root{--pm-green:#0b8f68;--pm-dark:#073f34;--pm-bg:#f5f7f6;--pm-card:#fff;--pm-text:#18342d;--pm-muted:#71827c;--pm-line:#e3ebe7;--pm-shadow:0 6px 22px rgba(9,61,48,.07)}
+@media(max-width:700px){
+ body{background:var(--pm-bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+ header{height:60px!important;background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--pm-line)!important;box-shadow:0 2px 12px rgba(0,0,0,.04)!important}
+ .header-inner{padding:0!important}.mobile-logo{width:34px!important;height:34px!important;border-radius:10px!important}.mobile-brand b{font-size:15px!important}.mobile-brand small{font-size:8px!important}
+ #notifBell{right:72px!important;top:10px!important;padding:8px 10px!important;font-size:18px!important;box-shadow:none!important;background:#f1f8f5!important}
+ .sync-dot{max-width:115px!important;font-size:8px!important;background:#eef8f4!important}
+ main{padding:9px 9px 91px!important}
+ .page>.hero{margin-top:2px!important}
+ .hero{padding:16px!important;border-radius:18px!important;box-shadow:var(--pm-shadow)!important;background:linear-gradient(135deg,#fff,#edf9f4)!important}
+ .hero h2{font-size:19px!important;margin-bottom:3px!important}
+ .card{background:var(--pm-card)!important;border:1px solid var(--pm-line)!important;border-radius:17px!important;box-shadow:var(--pm-shadow)!important;padding:13px!important;margin-bottom:10px!important}
+ .section-title{margin:2px 0 9px!important}.section-title h2{font-size:17px!important}.section-title h3{font-size:15px!important}
+ .grid,.dashboard-grid,.form-grid{gap:8px!important}
+ .stat-card{padding:12px!important;border-radius:14px!important;background:#fff!important;box-shadow:0 3px 12px rgba(9,61,48,.05)!important}.stat-label{font-size:9px!important}.stat{font-size:16px!important}
+ .report-card{padding:12px!important;border-radius:14px!important}.report-card .big{font-size:18px!important}
+ .shortcut-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}.shortcut{min-height:84px!important;padding:11px!important;border-radius:15px!important}.shortcut-icon{width:36px!important;height:36px!important;font-size:19px!important}.shortcut h3{font-size:12px!important;margin:6px 0 2px!important}.shortcut p{font-size:9px!important}
+ .menu-grid{gap:8px!important}.menu{border-radius:15px!important;padding:8px!important;box-shadow:0 4px 13px rgba(9,61,48,.06)!important}.menu-visual{height:80px!important;border-radius:11px!important;font-size:36px!important}.menu h3{font-size:12px!important}.price{font-size:13px!important}.add-btn{width:31px!important;height:31px!important;border-radius:9px!important}
+ .pos-layout{gap:9px!important}.cart-panel{border:2px solid #d9eee6!important}.cart-item{padding:10px 0!important}
+ input,select{min-height:42px!important;border-radius:11px!important}.btn{min-height:40px!important;border-radius:10px!important;font-size:12px!important}
+ .table-wrap{border-radius:13px!important}.table-wrap table th{font-size:10px!important}.table-wrap td{font-size:11px!important}
+ .material-list{gap:7px!important}.material-item{padding:11px!important;border-radius:12px!important;font-size:11px!important}
+ .total-box{padding:13px!important;border-radius:13px!important}.total{font-size:19px!important}
+ .back-dashboard{position:static!important;width:100%!important;margin:0 0 9px!important;padding:9px!important;border-radius:11px!important;font-size:12px!important}
+ nav{height:70px!important;background:rgba(5,62,52,.98)!important;padding:5px 5px calc(5px + env(safe-area-inset-bottom))!important}
+ .mobile-nav-items{gap:2px!important}.mobile-nav-btn{font-size:9px!important;border-radius:10px!important}.mobile-nav-btn span:first-child{font-size:18px!important}.mobile-nav-btn.active{background:rgba(20,180,126,.30)!important}
+ .mobile-menu{bottom:78px!important;border-radius:18px!important;padding:11px!important}.mobile-menu-grid{gap:7px!important}.mobile-menu-grid button{border-radius:12px!important;padding:10px!important}
+ #notifPanel{top:60px!important;right:9px!important;width:calc(100vw - 18px)!important;border-radius:17px!important}
+}
+</style>
+
+<style id="pumala-kasir-mobile-ui">
+/* PUMALA KASIR MOBILE — compact UI layer */
+:root{--pm-green:#0b9f70;--pm-dark:#06483b;--pm-bg:#f3f7f5;--pm-line:#dfeae5;--pm-card:#fff;--pm-shadow:0 5px 18px rgba(6,72,59,.06)}
+html,body{background:var(--pm-bg)}
+.card{padding:15px;border-radius:16px;margin-bottom:11px;box-shadow:var(--pm-shadow)}
+main{max-width:1400px;padding-top:88px}
+.hero{padding:18px 20px;min-height:0}.hero h2{font-size:23px;margin-bottom:3px}.hero p{font-size:12px}
+.section-title{margin:2px 0 9px}.section-title h2{font-size:19px}.section-title h3{font-size:15px}
+.dashboard-grid{gap:9px}.report-card{padding:13px;border-radius:15px}.report-card h3{font-size:12px}.report-card .big{font-size:20px;margin-top:5px}.report-card .mini{font-size:10px}
+.shortcut-grid{gap:8px}.shortcut{min-height:84px;padding:10px;border-radius:14px}.shortcut-icon{width:36px;height:36px;font-size:19px}.shortcut h3{font-size:12px;margin:6px 0 2px}.shortcut p{font-size:9px}
+.stat-card{padding:12px;border-radius:14px}.stat{font-size:19px}.stat-label{font-size:10px}
+.total-box{padding:12px;margin-top:9px}
+.form-grid{gap:9px}.btn{padding:9px 12px;min-height:40px}
+.table-wrap{border-radius:12px}
+@media(min-width:701px){
+ .dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .shortcut-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+ .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .report-card .big{font-size:20px}
+}
+@media(max-width:700px){
+ header{height:58px}.mobile-logo{width:34px;height:34px}.mobile-brand b{font-size:15px}
+ main{padding:68px 9px 90px}
+ .card{padding:12px;margin-bottom:9px}
+ .hero{padding:14px 15px;border-radius:15px}
+ .hero h2{font-size:18px}
+ .hero p{font-size:10px}
+ .dashboard-grid{grid-template-columns:1fr 1fr;gap:7px}
+ .report-card{padding:10px;border-radius:13px;min-height:72px}
+ .report-card h3{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .report-card .big{font-size:16px;white-space:nowrap}
+ .report-card .mini{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .shortcut-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .shortcut{min-height:75px;padding:8px;border-radius:12px;text-align:center}
+ .shortcut-icon{width:31px;height:31px;margin:auto;font-size:16px;border-radius:9px}
+ .shortcut h3{font-size:9px;margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .shortcut p{display:none}
+ .grid{grid-template-columns:1fr 1fr;gap:7px}
+ .stat-card{padding:10px}.stat{font-size:16px}
+ .section-title h2{font-size:16px}.section-title h3{font-size:14px}
+ .menu-grid{gap:7px}.menu{padding:7px;border-radius:13px}.menu-visual{height:70px;font-size:31px;margin-bottom:6px}.menu h3{font-size:11px}.price{font-size:12px}.add-btn{width:30px;height:30px}
+ .material-list{gap:6px}.material-item{padding:10px;font-size:11px}
+ input,select{min-height:40px;padding:9px 10px;font-size:13px}
+ .back-dashboard{margin-bottom:8px}
+ /* reduce long vertical reports */
+ #laporan .card,#pengeluaran .card,#stok .card,#delivery .card,#backup .card{margin-bottom:8px}
+}
+/* Make the current-month financial snapshot compact */
+.month-running,.current-month,.running-month{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media(max-width:700px){.month-running,.current-month,.running-month{grid-template-columns:1fr 1fr;gap:7px}}
+</style>
 </head>
 <body>
 <button id="notifBell" onclick="toggleNotifPanel()" aria-label="Notifikasi">🔔<span id="notifBadge">0</span></button>
@@ -477,19 +561,8 @@ function dashboard(){
  const previousMonth=reportData(localDateKey(previousMonthStart),previousMonthEnd);
  const currentMonth=reportData(currentMonthKey,currentMonthEnd);
 
- // Memisahkan pemasukan bulan ini berdasarkan metode pembayaran (Cash & QRIS)
- const currentTransactions = state.transactions.filter(t => {
-  const d = localDateKey(t.date);
-  return d >= currentMonthKey && d <= currentMonthEnd;
- });
- const currentMonthCash = currentTransactions.filter(t => (t.payment || 'cash') === 'cash').reduce((s,t) => s + (Number(t.total) || 0), 0);
- const currentMonthQris = currentTransactions.filter(t => t.payment === 'qris').reduce((s,t) => s + (Number(t.total) || 0), 0);
-
  const previousBalance=previousMonth.income-previousMonth.expense;
- 
- // Saldo berjalan dipisah menjadi saldo Cash dan saldo QRIS
- const runningBalanceCash = previousBalance + currentMonthCash - currentMonth.expense;
- const runningBalanceQris = currentMonthQris;
+ const runningBalance=previousBalance+currentMonth.income-currentMonth.expense;
 
  const monthName=d=>d.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
  const dailyDate=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -507,7 +580,7 @@ function dashboard(){
     <button class="shortcut" onclick="show('keuangan')"><div class="shortcut-icon">💰</div><h3>Keuangan</h3><p>Kelola pemasukan, pengeluaran & QRIS</p></button>
     <button class="shortcut" onclick="show('laporan')"><div class="shortcut-icon">📊</div><h3>Laporan</h3><p>Laporan harian dan periode</p></button>
     <button class="shortcut" onclick="show('delivery')"><div class="shortcut-icon">🛵</div><h3>Delivery</h3><p>Kelola pesanan delivery</p></button>
-    <button class="shortcut" onclick="show('riwayat')"><div class="shortcut-icon">🧾</div><h3>Riwayat Pesanan</h3><p>Lihat pesanan online yang selesai</p></button>
+     <button class="shortcut" onclick="show('riwayat')"><div class="shortcut-icon">🧾</div><h3>Riwayat Pesanan</h3><p>Lihat pesanan online yang selesai</p></button>
     <button class="shortcut" onclick="show('backup')"><div class="shortcut-icon">💾</div><h3>Backup</h3><p>Simpan atau impor data</p></button>
    </div>
   </div>
@@ -532,25 +605,16 @@ function dashboard(){
   <div class="card">
    <div class="grid">
     <div><div class="muted">Saldo Bulan Kemarin</div><b>${rupiah(previousBalance)}</b></div>
-    <div><div class="muted">＋ Pemasukan Cash Bulan Ini</div><b>${rupiah(currentMonthCash)}</b></div>
-    <div><div class="muted">＋ Pemasukan QRIS Bulan Ini</div><b>${rupiah(currentMonthQris)}</b></div>
-   </div>
-   <div class="grid" style="margin-top:10px">
+    <div><div class="muted">＋ Pemasukan Bulan Ini</div><b>${rupiah(currentMonth.income)}</b></div>
     <div><div class="muted">− Pengeluaran Bulan Ini</div><b>${rupiah(currentMonth.expense)}</b></div>
    </div>
-   
    <div class="total-box" style="margin-top:14px">
-    <span>Saldo Berjalan (Cash)</span>
-    <span class="total">${rupiah(runningBalanceCash)}</span>
+    <span>Saldo Berjalan</span>
+    <span class="total">${rupiah(runningBalance)}</span>
    </div>
-   <div class="total-box" style="margin-top:8px; background:#f4f0ff; border-color:#e2d9ff;">
-    <span style="color:var(--purple);">Saldo Berjalan (QRIS)</span>
-    <span class="total" style="color:var(--purple);">${rupiah(runningBalanceQris)}</span>
-   </div>
-   <div class="muted" style="margin-top:8px">Saldo cash = saldo bulan kemarin + pemasukan cash bulan ini − pengeluaran bulan ini.<br>Saldo QRIS = total pemasukan QRIS bulan ini.</div>
+   <div class="muted" style="margin-top:8px">Saldo bulan kemarin + pemasukan bulan ini − pengeluaran bulan ini</div>
   </div>`;
 }
-
 
 function renderOnlineOrders(){
  const host=document.getElementById('dashboard');if(!host)return;
