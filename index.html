@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>PUMALA — APP</title>
 <style>
+/* ===== REFRESHED ULTRA MODERN THEME (MIDNIGHT INDIGO & EMERALD) ===== */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -21,36 +22,42 @@ html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Plus Jaka
 button,input,select{font:inherit}button{cursor:pointer}
 body{min-height:100vh}
 
-/* PERBAIKAN LOCK SCREEN SUPAYA BISA DIKLIK */
-#lockScreen {
+/* ===== LOCK SCREEN (MENGGUNAKAN FORMULA LENGKAP CADANGAN LAMA) ===== */
+.lock-screen{
  position:fixed!important;
  inset:0!important;
- z-index:2147483647!important;
+ z-index:999999!important;
  background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)!important;
  color:#fff!important;
  display:flex!important;
  align-items:center!important;
  justify-content:center!important;
  padding:20px!important;
+ pointer-events:auto!important;
 }
 .lock-panel{
- width:min(380px,100%);text-align:center;background:rgba(255,255,255,0.05);
- padding:32px 24px;border-radius:24px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
- border:1px solid rgba(255,255,255,0.1);box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);
+ width:min(360px,100%);
+ text-align:center;
+ position:relative;
+ z-index:10;
 }
-.lock-title{font-size:28px;font-weight:800;letter-spacing:-0.5px}.lock-subtitle{color:#94a3b8;font-size:14px;margin:6px 0 24px}
-.pin-dots{display:flex;justify-content:center;gap:14px;margin:20px 0 28px}.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);transition:.2s}
-.pin-dot.filled{background:var(--primary);border-color:var(--primary);box-shadow:0 0 12px var(--primary)}
-.pin-error{height:20px;color:#f87171;font-size:13px;margin-bottom:12px;font-weight:600}
+.lock-title{font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.lock-subtitle{color:#94a3b8;font-size:14px;margin:6px 0 20px}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:18px 0 25px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);transition:.2s}
+.pin-dot.filled{background:var(--primary);border-color:var(--primary);box-shadow:0 0 10px var(--primary)}
+.pin-error{height:20px;color:#f87171;font-size:13px;margin-bottom:10px;font-weight:600}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:300px;margin:auto}
 .pin-btn{
- width:72px;height:72px;max-width:100%;justify-self:center;border-radius:50%;
- border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);
- color:#fff;font-size:26px;font-weight:700;transition:.15s ease;
- touch-action:manipulation;
+ width:76px;height:76px;max-width:100%;justify-self:center;border-radius:50%;
+ border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);
+ color:#fff;font-size:26px;font-weight:700;cursor:pointer!important;
+ pointer-events:auto!important;touch-action:manipulation;
+ transition:.15s ease;
 }
-.pin-btn:active{background:var(--primary);transform:scale(0.92);border-color:var(--primary)}
+.pin-btn:active{background:var(--primary);transform:scale(.94);border-color:var(--primary)}
 
+/* Layout & Elements */
 .payment-box{margin:14px 0;padding:14px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
 .payment-options{display:flex;gap:10px;margin-top:10px}
 .payment-option{flex:1;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;font-weight:700;display:flex;align-items:center;cursor:pointer}
@@ -232,8 +239,8 @@ tr:last-child td{border-bottom:0}
   <div class="notif-actions"><span id="pushStatusPanel" class="status-pill">Notifikasi belum aktif</span><button class="btn" onclick="requestOrderNotifications()">🔔 Aktifkan Notifikasi</button></div>
 </div>
 
-<!-- LOCK SCREEN DENGAN BUTTON EVENT ONTOUCHSTART KHUSUS HP -->
-<div id="lockScreen">
+<!-- LOCK SCREEN (STRUKTUR TOMBOL BERSIH) -->
+<div id="lockScreen" class="lock-screen">
  <div class="lock-panel">
   <div style="font-size:46px;margin-bottom:8px">🔒</div>
   <div class="lock-title">PUMALA</div>
@@ -244,18 +251,18 @@ tr:last-child td{border-bottom:0}
   </div>
   <div id="pinError" class="pin-error"></div>
   <div class="pin-grid">
-   <button type="button" class="pin-btn" onclick="pinPress('1')" ontouchstart="pinPress('1')">1</button>
-   <button type="button" class="pin-btn" onclick="pinPress('2')" ontouchstart="pinPress('2')">2</button>
-   <button type="button" class="pin-btn" onclick="pinPress('3')" ontouchstart="pinPress('3')">3</button>
-   <button type="button" class="pin-btn" onclick="pinPress('4')" ontouchstart="pinPress('4')">4</button>
-   <button type="button" class="pin-btn" onclick="pinPress('5')" ontouchstart="pinPress('5')">5</button>
-   <button type="button" class="pin-btn" onclick="pinPress('6')" ontouchstart="pinPress('6')">6</button>
-   <button type="button" class="pin-btn" onclick="pinPress('7')" ontouchstart="pinPress('7')">7</button>
-   <button type="button" class="pin-btn" onclick="pinPress('8')" ontouchstart="pinPress('8')">8</button>
-   <button type="button" class="pin-btn" onclick="pinPress('9')" ontouchstart="pinPress('9')">9</button>
-   <button type="button" class="pin-btn" onclick="pinClear()" ontouchstart="pinClear()">⌫</button>
-   <button type="button" class="pin-btn" onclick="pinPress('0')" ontouchstart="pinPress('0')">0</button>
-   <button type="button" class="pin-btn" onclick="pinClearAll()" ontouchstart="pinClearAll()">C</button>
+   <button type="button" class="pin-btn" onclick="pinPress('1')">1</button>
+   <button type="button" class="pin-btn" onclick="pinPress('2')">2</button>
+   <button type="button" class="pin-btn" onclick="pinPress('3')">3</button>
+   <button type="button" class="pin-btn" onclick="pinPress('4')">4</button>
+   <button type="button" class="pin-btn" onclick="pinPress('5')">5</button>
+   <button type="button" class="pin-btn" onclick="pinPress('6')">6</button>
+   <button type="button" class="pin-btn" onclick="pinPress('7')">7</button>
+   <button type="button" class="pin-btn" onclick="pinPress('8')">8</button>
+   <button type="button" class="pin-btn" onclick="pinPress('9')">9</button>
+   <button type="button" class="pin-btn" onclick="pinClear()">⌫</button>
+   <button type="button" class="pin-btn" onclick="pinPress('0')">0</button>
+   <button type="button" class="pin-btn" onclick="pinClearAll()">C</button>
   </div>
  </div>
 </div>
@@ -816,7 +823,7 @@ function showPeriodReport(){
 function exportReportCSV(){
  const from=document.getElementById('reportFrom')?.value,to=document.getElementById('reportTo')?.value;if(!from||!to)return;const d=reportData(from,to),rows=[['Tanggal','Jenis','Detail','Nominal']];
  reportRows(d).forEach(x=>rows.push([new Date(x.date).toLocaleString('id-ID'),x.type,x.detail,x.amount]));
- const csv=rows.map(r=>r.map(v=>`"${String(r.replace(/"/g,'""'))}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='PUMALA_Laporan_'+from+'_sampai_'+to+'.csv';a.click()
+ const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='PUMALA_Laporan_'+from+'_sampai_'+to+'.csv';a.click()
 }
 
 /* DELIVERY */
